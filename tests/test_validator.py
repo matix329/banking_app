@@ -1,7 +1,7 @@
 from banking_core.services.validator import luhn_checksum, is_valid_card_number
 
 def test_luhn_checksum_valid():
-    valid_card_number = "4000001234567890"
+    valid_card_number = "4000008449433403"
     assert luhn_checksum(valid_card_number) == 0, "Checksum should be 0 for a valid card number"
 
 def test_luhn_checksum_invalid():
@@ -9,7 +9,7 @@ def test_luhn_checksum_invalid():
     assert luhn_checksum(invalid_card_number) != 0, "Checksum should not be 0 for an invalid card number"
 
 def test_is_valid_card_number():
-    valid_card_number = "4000001234567890"
+    valid_card_number = "4000008449433403"
     assert is_valid_card_number(valid_card_number), "The card number should be valid"
 
 def test_is_invalid_card_number_length():

@@ -5,6 +5,7 @@ Modular banking system in Python with SQLite, supporting accounts, login, and tr
 
 ## Changelog
 
-**1.0**
+### [1.0.0] - 2024-11-09
 
-Initial project structure established, organized into two main directories: banking_core for core application logic and tests for unit tests. This setup prepares the project for further feature development and testing
+#### Added
+- Initial project structure with two main directories: `banking_core` for core application logic and `tests` for unit tests.

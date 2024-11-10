@@ -1,1 +1,3 @@
 pytest
+sqlite3
+random

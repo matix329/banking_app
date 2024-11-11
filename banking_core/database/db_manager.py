@@ -13,6 +13,14 @@ class DatabaseManager:
                                     pin TEXT,
                                     balance INTEGER DEFAULT 0
                                 );''')
+            self.conn.execute('''CREATE TABLE IF NOT EXISTS transactions (
+                                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                    account_number TEXT,
+                                    transaction_type TEXT,
+                                    amount INTEGER,
+                                    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                    FOREIGN KEY (account_number) REFERENCES card(number)
+                                )''')
 
     def execute_query(self, query, params=()):
         with self.conn:

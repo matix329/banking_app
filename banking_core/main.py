@@ -17,7 +17,7 @@ def main():
             if account_manager.log_into_account(card_number, pin):
                 print("You have successfully logged in!")
                 while True:
-                    print("1. Balance\n2. Add income\n3. Do transfer\n4. Close account\n5. Log out\n0. Exit")
+                    print("1. Balance\n2. Add income\n3. Do transfer\n4. Transaction history\n5. Close account\n6. Log out\n0. Exit")
                     inner_choice = input("Choose an option: ")
 
                     if inner_choice == '1':
@@ -34,10 +34,13 @@ def main():
                         except ValueError as e:
                             print(e)
                     elif inner_choice == '4':
+                        print("Transaction history:")
+                        account_manager.get_transaction_history(card_number)
+                    elif inner_choice == '5':
                         account_manager.close_account(card_number)
                         print("The account has been closed!")
                         break
-                    elif inner_choice == '5':
+                    elif inner_choice == '6':
                         print("You have successfully logged out!")
                         break
                     elif inner_choice == '0':

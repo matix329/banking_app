@@ -41,5 +41,27 @@ class AccountManager:
         self.db.execute_query('UPDATE card SET balance = balance - ? WHERE number = ?', (amount, source_card))
         self.db.execute_query('UPDATE card SET balance = balance + ? WHERE number = ?', (amount, target_card))
 
+        self.record_transaction(source_card, "transfer_out", -amount)
+        self.record_transaction(target_card, "transfer_in", amount)
+
     def close_account(self, card_number):
         self.db.execute_query("DELETE FROM card WHERE number = ?", (card_number,))
+
+    def record_transaction(self, account_number, transaction_type, amount):
+        self.db.execute_query(
+            "INSERT INTO transactions (account_number, transaction_type, amount) VALUES (?, ?, ?)",
+            (account_number, transaction_type, amount)
+        )
+
+    def get_transaction_history(self, card_number):
+        cursor = self.db.conn.cursor()
+        cursor.execute(
+            "SELECT date, transaction_type, amount FROM transactions WHERE account_number = ? ORDER BY date DESC",
+            (card_number,))
+        transactions = cursor.fetchall()
+
+        if transactions:
+            for transaction in transactions:
+                print(f"Date: {transaction[0]}, Type: {transaction[1]}, Amount: {transaction[2]}")
+        else:
+            print("No transactions found for this account.")

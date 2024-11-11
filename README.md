@@ -9,6 +9,9 @@ A simple banking system in Python with functionalities for creating accounts, lo
 - **Account Closure**: Delete an account from the database.
 - **Card Number Validation**: Uses the Luhn algorithm to validate card numbers.
 
+## Version
+Current version: 1.1.0
+
 ## Requirements
 - Python 3.x
 - `pytest` for running unit tests
@@ -22,6 +25,7 @@ A simple banking system in Python with functionalities for creating accounts, lo
 - **AccountManager** (`account_manager.py`): Manages account operations such as creating accounts, adding income, transferring funds, and closing accounts.
 - **Validator** (`validator.py`): Implements the Luhn algorithm to validate card numbers.
 - **Constants** (`constants.py`): Stores reusable constants.
+- **Transaction History**: View a log of past transactions (income and transfers) for each account.
 - **Main Entry Point** (`main.py`): Provides a command-line interface for users to interact with the banking system.
 - **Tests**: Unit tests for `AccountManager`, `DatabaseManager`, and `Validator` modules, covering functionality like account creation, balance updates, transfers, and validation.
 

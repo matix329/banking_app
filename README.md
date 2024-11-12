@@ -11,9 +11,12 @@ A simple banking system in Python with functionalities for creating accounts, lo
 - **Transaction history**: View a log of past transactions
 
 ## Version
-Current version: 1.1.0
+Current version: 1.1.1
 
 ## Requirements
 - Python 3.x
 - `pytest` for running unit tests
 - SQLite (bundled with Python)
+
+## Changelog
+For detailed information on updates and changes, see the [CHANGELOG.md](CHANGELOG.md).

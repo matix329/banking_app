@@ -19,3 +19,8 @@
 
 ### Changed
 - **Transfer handling**: Each `add income` and `transfer` operation is now logged in the `transactions` table to ensure a complete transaction history.
+
+## [1.1.1] - 2024-11-12
+### Fixed
+- Added error handling for database connection and queries to prevent crashes when the database is unavailable.
+- Improved database query execution with better error messages when the connection is not available.

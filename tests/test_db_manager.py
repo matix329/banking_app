@@ -28,3 +28,12 @@ def test_fetch_one(db_manager):
     assert result[1] == "1234567890123456"
     assert result[2] == "1234"
     assert result[3] == 100
+
+def test_database_connection_success():
+    db_manager = DatabaseManager(":memory:")
+    assert db_manager.conn is not None, "Database connection should be established successfully."
+
+def test_database_connection_failure():
+    with pytest.raises(Exception) as exc_info:
+        db_manager = DatabaseManager("non_existent_db.s3db")
+    assert "Database connection error" in str(exc_info.value)

@@ -45,7 +45,12 @@ class AccountManager:
         self.record_transaction(target_card, "transfer_in", amount)
 
     def close_account(self, card_number):
+        cursor = self.db.conn.cursor()
+        cursor.execute("SELECT * FROM card WHERE number = ?", (card_number,))
+        if cursor.fetchone() is None:
+            raise ValueError("Account does not exist.")
         self.db.execute_query("DELETE FROM card WHERE number = ?", (card_number,))
+        print("The account has been closed!")
 
     def record_transaction(self, account_number, transaction_type, amount):
         self.db.execute_query(

@@ -46,3 +46,11 @@ def test_close_account(account_manager):
     account_manager.close_account(card_number)
     balance = account_manager.get_balance(card_number)
     assert balance == 0, "Closed account should no longer have a balance"
+
+def test_close_account_not_found():
+    account_manager = AccountManager()
+    try:
+        account_manager.close_account("non_existent_card_number")
+        assert False, "ValueError should be raised when account does not exist."
+    except ValueError:
+        pass

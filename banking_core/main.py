@@ -38,7 +38,6 @@ def main():
                         account_manager.get_transaction_history(card_number)
                     elif inner_choice == '5':
                         account_manager.close_account(card_number)
-                        print("The account has been closed!")
                         break
                     elif inner_choice == '6':
                         print("You have successfully logged out!")

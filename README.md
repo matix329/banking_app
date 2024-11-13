@@ -11,7 +11,7 @@ A simple banking system in Python with functionalities for creating accounts, lo
 - **Transaction history**: View a log of past transactions
 
 ## Version
-Current version: 1.1.1
+Current version: 1.1.2
 
 ## Requirements
 - Python 3.x

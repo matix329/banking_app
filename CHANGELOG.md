@@ -24,3 +24,7 @@
 ### Fixed
 - Added error handling for database connection and queries to prevent crashes when the database is unavailable.
 - Improved database query execution with better error messages when the connection is not available.
+
+## [1.1.2] - 2024-11-13
+### Added
+- Improved `close_account` method to ensure better validation and error handling.

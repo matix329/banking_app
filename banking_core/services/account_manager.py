@@ -1,6 +1,7 @@
 import random
 from banking_core.services.validator import is_valid_card_number, luhn_checksum
 from banking_core.database.db_manager import DatabaseManager
+from datetime import datetime
 
 class AccountManager:
     def __init__(self):
@@ -36,8 +37,22 @@ class AccountManager:
     def transfer(self, source_card, target_card, amount):
         if not is_valid_card_number(target_card):
             raise ValueError("Invalid card number.")
+
         if self.get_balance(source_card) < amount:
             raise ValueError("Not enough balance.")
+
+        limit_data = self.db.get_daily_limit(source_card)
+        if limit_data:
+            daily_limit = limit_data[0]
+            changes_today = limit_data[1]
+            set_date = limit_data[2]
+
+            if amount > daily_limit:
+                raise ValueError(f"Transaction denied: You cannot exceed your daily limit of {daily_limit}.")
+
+            if changes_today >= 3:
+                raise ValueError("You have reached the maximum number of changes for today. Try again tomorrow.")
+
         self.db.execute_query('UPDATE card SET balance = balance - ? WHERE number = ?', (amount, source_card))
         self.db.execute_query('UPDATE card SET balance = balance + ? WHERE number = ?', (amount, target_card))
 
@@ -70,3 +85,36 @@ class AccountManager:
                 print(f"Date: {transaction[0]}, Type: {transaction[1]}, Amount: {transaction[2]}")
         else:
             print("No transactions found for this account.")
+
+    def set_daily_limit(self, card_number):
+        limit_data = self.db.get_daily_limit(card_number)
+
+        if limit_data:
+            daily_limit = limit_data[0]
+            changes_today = limit_data[1]
+            set_date = limit_data[2]
+
+            print(f"Current daily limit: {daily_limit}, Changes today: {changes_today}, Set on: {set_date}")
+
+            if limit_data[2] == str(datetime.now().date()) and changes_today >= 3:
+                print("You have reached the maximum number of changes for today. Try again tomorrow.")
+                return
+        else:
+            print("No daily limit set for this account.")
+
+        pin = input("Enter your PIN to confirm: ")
+        cursor = self.db.conn.cursor()
+        cursor.execute("SELECT pin FROM card WHERE number = ?", (card_number,))
+        stored_pin = cursor.fetchone()[0]
+
+        if pin == stored_pin:
+            new_limit = int(input("Enter your new daily transaction limit: "))
+
+            if limit_data:
+                self.db.update_daily_limit(card_number, new_limit)
+            else:
+                self.db.add_daily_limit(card_number, new_limit)
+
+            print(f"Your daily limit has been set to {new_limit}.")
+        else:
+            print("Invalid PIN.")

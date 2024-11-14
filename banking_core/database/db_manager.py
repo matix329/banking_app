@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime
 
 class DatabaseManager:
     def __init__(self, db_name="card.s3db"):
@@ -77,3 +78,37 @@ class DatabaseManager:
         else:
             print("Error: No database connection to close")
             raise Exception("No database connection to close.")
+
+    def get_daily_limit(self, account_number):
+        cursor = self.conn.cursor()
+        cursor.execute('''SELECT daily_limit, changes_today, set_date 
+                          FROM daily_limits WHERE account_number = ? ORDER BY set_date DESC LIMIT 1''',
+                       (account_number,))
+        result = cursor.fetchone()
+        if result:
+            return result
+        return None
+
+    def add_daily_limit(self, account_number, daily_limit):
+        cursor = self.conn.cursor()
+        current_date = datetime.now().date()
+        try:
+            cursor.execute('''INSERT INTO daily_limits (account_number, daily_limit, set_date, changes_today)
+                              VALUES (?, ?, ?, ?)''', (account_number, daily_limit, str(current_date), 0))
+            self.conn.commit()
+        except sqlite3.Error as e:
+            print(f"Error adding daily limit: {e}")
+            raise
+
+    def update_daily_limit(self, account_number, new_limit):
+        cursor = self.conn.cursor()
+        current_date = datetime.now().date()
+        try:
+            cursor.execute('''UPDATE daily_limits
+                              SET daily_limit = ?, set_date = ?, changes_today = changes_today + 1
+                              WHERE account_number = ? AND set_date = ?''',
+                           (new_limit, str(current_date), account_number, str(current_date)))
+            self.conn.commit()
+        except sqlite3.Error as e:
+            print(f"Error updating daily limit: {e}")
+            raise

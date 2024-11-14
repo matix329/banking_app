@@ -17,7 +17,7 @@ def main():
             if account_manager.log_into_account(card_number, pin):
                 print("You have successfully logged in!")
                 while True:
-                    print("1. Balance\n2. Add income\n3. Do transfer\n4. Transaction history\n5. Close account\n6. Log out\n0. Exit")
+                    print("1. Balance\n2. Add income\n3. Do transfer\n4. Transaction history\n5. Close account\n6. Set daily limit\n7. Log out\n0. Exit")
                     inner_choice = input("Choose an option: ")
 
                     if inner_choice == '1':
@@ -40,6 +40,8 @@ def main():
                         account_manager.close_account(card_number)
                         break
                     elif inner_choice == '6':
+                        account_manager.set_daily_limit(card_number)
+                    elif inner_choice == '7':
                         print("You have successfully logged out!")
                         break
                     elif inner_choice == '0':

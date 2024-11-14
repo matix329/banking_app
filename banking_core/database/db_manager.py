@@ -27,6 +27,14 @@ class DatabaseManager:
                                             date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                             FOREIGN KEY (account_number) REFERENCES card(number)
                                         )''')
+                    self.conn.execute('''CREATE TABLE IF NOT EXISTS daily_limits (
+                                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                            account_number TEXT,
+                                            daily_limit INTEGER,
+                                            set_date TEXT,
+                                            changes_today INTEGER DEFAULT 0,
+                                            FOREIGN KEY (account_number) REFERENCES card(number)
+                                        );''')
             except sqlite3.Error as e:
                 print(f"Error setting up the database: {e}")
                 raise

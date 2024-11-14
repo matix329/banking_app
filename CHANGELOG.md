@@ -28,3 +28,21 @@
 ## [1.1.2] - 2024-11-13
 ### Added
 - Improved `close_account` method to ensure better validation and error handling.
+
+## [1.2.2] - 2024-11-14
+### Added
+- **Daily transaction limit functionality**:
+  - Introduced a new table `daily_limits` to store daily transaction limits for users.
+  - Added functionality to set and update daily limits for users.
+  - Implemented validation to ensure users can only change their daily limit up to 3 times a day.
+  - Added support for checking daily limits during transactions, preventing transfers that exceed the set limit.
+
+### Changed
+- **Transfer functionality**:
+  - Updated `transfer` method to check the daily limit before processing a transaction. If the transaction exceeds the limit, it is denied.
+  
+### Fixed
+- Resolved issues with limit changes, ensuring that users can change their daily limit only up to 3 times per day.
+  
+### Database Changes
+- Added a new table `daily_limits` to track the daily limit, set date, and number of changes for each account.

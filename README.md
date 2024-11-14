@@ -9,9 +9,11 @@ A simple banking system in Python with functionalities for creating accounts, lo
 - **Account Closure**: Delete an account from the database.
 - **Card Number Validation**: Uses the Luhn algorithm to validate card numbers.
 - **Transaction history**: View a log of past transactions
+- **Daily Transaction Limit**: Set, update, and track daily transaction limits for each account (with a limit of 3 changes per day).
+- **Limit Checking**: Ensure transactions do not exceed the set daily limit.
 
 ## Version
-Current version: 1.1.2
+Current version: 1.2.2
 
 ## Requirements
 - Python 3.x

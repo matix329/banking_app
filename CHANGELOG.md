@@ -46,3 +46,7 @@
   
 ### Database Changes
 - Added a new table `daily_limits` to track the daily limit, set date, and number of changes for each account.
+
+## [1.2.3] - 2024-11-15
+### Added
+- Test functions for database, transfers, and daily limit functionality

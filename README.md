@@ -13,7 +13,7 @@ A simple banking system in Python with functionalities for creating accounts, lo
 - **Limit Checking**: Ensure transactions do not exceed the set daily limit.
 
 ## Version
-Current version: 1.2.2
+Current version: 1.2.3
 
 ## Requirements
 - Python 3.x

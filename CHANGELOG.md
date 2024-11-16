@@ -50,3 +50,14 @@
 ## [1.2.3] - 2024-11-15
 ### Added
 - Test functions for database, transfers, and daily limit functionality
+
+## [v1.2.4] - 2024-11-16
+### Added
+- Implemented account locking after 3 consecutive failed login attempts.
+- Added `failed_attempts` and `locked` columns in the `card` table to track and manage failed login attempts.
+
+### Changed
+- Modified account login logic to lock the account after 3 failed login attempts and raise an error when the account is locked.
+
+### Fixed
+- Fixed issues with account lock logic that caused errors in the login flow.

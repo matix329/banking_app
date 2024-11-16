@@ -11,9 +11,10 @@ A simple banking system in Python with functionalities for creating accounts, lo
 - **Transaction history**: View a log of past transactions
 - **Daily Transaction Limit**: Set, update, and track daily transaction limits for each account (with a limit of 3 changes per day).
 - **Limit Checking**: Ensure transactions do not exceed the set daily limit.
+- **Account Locking After Failed Login Attempts**: Lock accounts after 3 consecutive failed login attempts to prevent unauthorized access.
 
 ## Version
-Current version: 1.2.3
+Current version: 1.2.4
 
 ## Requirements
 - Python 3.x

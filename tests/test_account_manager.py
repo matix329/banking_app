@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import patch
 from banking_core.services.account_manager import AccountManager
 
 @pytest.fixture
@@ -54,3 +55,22 @@ def test_close_account_not_found():
         assert False, "ValueError should be raised when account does not exist."
     except ValueError:
         pass
+
+
+def test_lock_account_after_failed_attempt(account_manager):
+    card_number, pin = account_manager.create_account()
+
+    with patch.object(account_manager.db, 'fetch_one', return_value=(card_number, 'hashedpin', 0, False)):
+        assert not account_manager.log_into_account(card_number, "wrongpin")
+        assert not account_manager.log_into_account(card_number, "wrongpin")
+
+        with pytest.raises(ValueError, match="Your account has been locked due to multiple failed login attempts."):
+            account_manager.log_into_account(card_number, "wrongpin")
+
+
+def test_account_locked(account_manager):
+    card_number, pin = account_manager.create_account()
+
+    with patch.object(account_manager.db, 'fetch_one', return_value=(card_number, 'hashedpin', 3, True)):
+        with pytest.raises(ValueError, match="This account is locked due to multiple failed login attempts."):
+            account_manager.log_into_account(card_number, pin)

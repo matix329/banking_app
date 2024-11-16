@@ -2,6 +2,7 @@ import random
 from banking_core.services.validator import is_valid_card_number, luhn_checksum
 from banking_core.database.db_manager import DatabaseManager
 from datetime import datetime
+import bcrypt
 
 class AccountManager:
     def __init__(self):
@@ -24,8 +25,22 @@ class AccountManager:
         return ''.join([str(random.randint(0, 9)) for _ in range(4)])
 
     def log_into_account(self, card_number, pin):
-        result = self.db.fetch_one("SELECT number FROM card WHERE number = ? AND pin = ?", (card_number, pin))
-        return result is not None
+        result = self.db.fetch_one("SELECT number, pin, failed_attempts, locked FROM card WHERE number = ?",
+                                   (card_number,))
+
+        if result:
+            stored_card_number, stored_pin, failed_attempts, locked = result
+
+            if locked:
+                raise ValueError("This account is locked due to multiple failed login attempts.")
+
+            if pin == stored_pin:
+                self.db.execute_query("UPDATE card SET failed_attempts = 0 WHERE number = ?", (card_number,))
+                return True
+            else:
+                self.lock_account_after_failed_attempt(card_number)
+
+        return False
 
     def get_balance(self, card_number):
         result = self.db.fetch_one("SELECT balance FROM card WHERE number = ?", (card_number,))
@@ -118,3 +133,18 @@ class AccountManager:
             print(f"Your daily limit has been set to {new_limit}.")
         else:
             print("Invalid PIN.")
+
+    def lock_account_after_failed_attempt(self, card_number):
+        cursor = self.db.conn.cursor()
+        cursor.execute("SELECT failed_attempts FROM card WHERE number = ?", (card_number,))
+        failed_attempts = cursor.fetchone()[0]
+
+        if failed_attempts + 1 >= 3:
+            self.db.execute_query("UPDATE card SET locked = TRUE WHERE number = ?", (card_number,))
+            raise ValueError("Your account has been locked due to multiple failed login attempts.")
+
+        self.db.execute_query("UPDATE card SET failed_attempts = failed_attempts + 1 WHERE number = ?", (card_number,))
+
+    def unlock_account(self, card_number):
+        self.db.execute_query("UPDATE card SET locked = FALSE, failed_attempts = 0 WHERE number = ?", (card_number,))
+        print("The account has been unlocked.")

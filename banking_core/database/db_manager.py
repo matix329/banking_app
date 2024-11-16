@@ -18,7 +18,9 @@ class DatabaseManager:
                                             id INTEGER PRIMARY KEY,
                                             number TEXT UNIQUE,
                                             pin TEXT,
-                                            balance INTEGER DEFAULT 0
+                                            balance INTEGER DEFAULT 0,
+                                            failed_attempts INTEGER DEFAULT 0,
+                                            locked BOOLEAN DEFAULT 0
                                         );''')
                     self.conn.execute('''CREATE TABLE IF NOT EXISTS transactions (
                                             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,7 +29,7 @@ class DatabaseManager:
                                             amount INTEGER,
                                             date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                             FOREIGN KEY (account_number) REFERENCES card(number)
-                                        )''')
+                                        );''')
                     self.conn.execute('''CREATE TABLE IF NOT EXISTS daily_limits (
                                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                                             account_number TEXT,

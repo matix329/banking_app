@@ -61,3 +61,20 @@
 
 ### Fixed
 - Fixed issues with account lock logic that caused errors in the login flow.
+
+## [1.2.5] - 2024-11-17
+
+### Added
+- Added `hash_pin` function to securely hash user PINs.
+- Added `check_pin` function to verify hashed PINs against user input.
+
+### Changed
+- Modified `create_account` function to hash PINs before storing them in the database.
+- Improved logic to handle locked accounts by raising an appropriate error.
+- Introduced validation for already locked accounts with a dedicated exception.
+
+### Fixed
+- Resolved issues with PIN validation during login.
+
+### Security
+- Replaced plaintext PIN storage with hashed PINs using `bcrypt`, ensuring sensitive data is not stored in plain text.

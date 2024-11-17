@@ -14,7 +14,7 @@ A simple banking system in Python with functionalities for creating accounts, lo
 - **Account Locking After Failed Login Attempts**: Lock accounts after 3 consecutive failed login attempts to prevent unauthorized access.
 
 ## Version
-Current version: 1.2.5
+Current version: 1.2.6
 
 ## Requirements
 - Python 3.x

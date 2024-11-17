@@ -78,3 +78,12 @@
 
 ### Security
 - Replaced plaintext PIN storage with hashed PINs using `bcrypt`, ensuring sensitive data is not stored in plain text.
+
+## [1.2.6] - 2024-11-17
+
+### Fixed
+- **Error Handling in Add Income and Transfer**: Fixed issues where negative or zero amounts could be entered for income and transfers without proper validation. Now, proper error messages are shown for invalid inputs.
+- **Input Handling**: Fixed issues where invalid inputs like strings or negative numbers caused application crashes or incorrect behavior in functions like `add_income` and `transfer`.
+
+### Removed
+- **Unnecessary Error Messages**: Cleaned up redundant error messages for invalid inputs in certain functions, streamlining user experience.

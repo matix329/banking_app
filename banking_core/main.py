@@ -11,6 +11,7 @@ def main():
             print("Your card has been created")
             print(f"Your card number:\n{card_number}")
             print(f"Your card PIN:\n{pin}")
+
         elif choice == '2':
             card_number = input("Enter your card number: ")
             pin = input("Enter your PIN: ")
@@ -22,38 +23,63 @@ def main():
 
                     if inner_choice == '1':
                         print(f"Balance: {account_manager.get_balance(card_number)}")
+
                     elif inner_choice == '2':
-                        income = int(input("Enter income: "))
-                        account_manager.add_income(card_number, income)
+                        while True:
+                            income_input = input("Enter income: ")
+                            try:
+                                income = int(income_input)
+                                account_manager.add_income(card_number, income)
+                                break
+                            except ValueError:
+                                print("Please enter a number")
+
                     elif inner_choice == '3':
                         target_card = input("Enter card number: ")
-                        amount = int(input("Enter amount: "))
-                        try:
-                            account_manager.transfer(card_number, target_card, amount)
-                            print("Success!")
-                        except ValueError as e:
-                            print(e)
+
+                        while True:
+                            try:
+                                amount = int(input("Enter amount: "))
+                                if amount <= 0:
+                                    raise ValueError("Invalid input. Please enter a valid positive number.")
+                                account_manager.transfer(card_number, target_card, amount)
+                                break
+                            except ValueError as e:
+                                print(e)
+                                continue
+                            except Exception as e:
+                                print("Unexpected error. Please try again.")
+                                break
+
                     elif inner_choice == '4':
                         print("Transaction history:")
                         account_manager.get_transaction_history(card_number)
+
                     elif inner_choice == '5':
                         account_manager.close_account(card_number)
                         break
+
                     elif inner_choice == '6':
                         account_manager.set_daily_limit(card_number)
+
                     elif inner_choice == '7':
                         print("You have successfully logged out!")
                         break
+
                     elif inner_choice == '0':
                         print("Bye!")
                         return
+
                     else:
                         print("Invalid option. Please try again.")
+
             else:
                 print("Wrong card number or PIN!")
+
         elif choice == '0':
             print('Bye!')
             break
+
         else:
             print("Invalid choice. Please select from the menu options.")
 

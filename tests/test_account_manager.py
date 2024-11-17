@@ -25,22 +25,39 @@ def test_get_balance(account_manager):
     balance = account_manager.get_balance(card_number)
     assert balance == 0, "New account should have a balance of 0"
 
-def test_add_income(account_manager):
+def test_add_income_with_invalid_input(account_manager):
     card_number, _ = account_manager.create_account()
+
+    with pytest.raises(ValueError, match="Income must be a positive number."):
+        account_manager.add_income(card_number, -100)
+
+    with pytest.raises(ValueError, match="Income must be a positive number."):
+        account_manager.add_income(card_number, 0)
+
     account_manager.add_income(card_number, 100)
     balance = account_manager.get_balance(card_number)
-    assert balance == 100, "Balance should reflect the income added"
+    assert balance == 100, "Income should correctly update the balance."
 
-def test_transfer(account_manager):
+def test_transfer_with_invalid_input(account_manager):
     source_card, _ = account_manager.create_account()
     target_card, _ = account_manager.create_account()
+
     account_manager.add_income(source_card, 200)
 
-    account_manager.transfer(source_card, target_card, 50)
-    source_balance = account_manager.get_balance(source_card)
-    target_balance = account_manager.get_balance(target_card)
-    assert source_balance == 150, "Source account balance should be reduced after transfer"
-    assert target_balance == 50, "Target account balance should increase after transfer"
+    with pytest.raises(ValueError, match="Transfer amount must be greater than zero."):
+        account_manager.transfer(source_card, target_card, 0)
+
+    with pytest.raises(ValueError, match="Transfer amount must be greater than zero."):
+        account_manager.transfer(source_card, target_card, -50)
+
+    with pytest.raises(ValueError, match="Not enough balance."):
+        account_manager.transfer(source_card, target_card, 500)
+
+    with pytest.raises(ValueError, match="Cannot transfer to the same account."):
+        account_manager.transfer(source_card, source_card, 50)
+
+    with pytest.raises(ValueError, match="Target account does not exist."):
+        account_manager.transfer(source_card, "4000001234567899", 50)
 
 def test_close_account(account_manager):
     card_number, _ = account_manager.create_account()
@@ -55,7 +72,6 @@ def test_close_account_not_found():
         assert False, "ValueError should be raised when account does not exist."
     except ValueError:
         pass
-
 
 def test_lock_account_after_failed_attempt(account_manager):
     account_manager.db = MagicMock()
@@ -89,7 +105,6 @@ def test_account_locked(account_manager):
         with pytest.raises(ValueError, match="This account is locked due to multiple failed login attempts."):
             account_manager.log_into_account(card_number, pin)
 
-
 def test_hash_pin(account_manager):
     pin = "1234"
     hashed_pin = account_manager.hash_pin(pin)
@@ -97,3 +112,13 @@ def test_hash_pin(account_manager):
     assert hashed_pin != pin, "Hashed PIN should not be equal to the original PIN"
 
     assert account_manager.check_pin(hashed_pin, pin), "The PIN does not match the hash"
+
+def test_set_daily_limit_with_invalid_input(account_manager):
+    card_number, pin = account_manager.create_account()
+    hashed_pin = account_manager.hash_pin(pin)
+
+    account_manager.db.fetch_one = MagicMock(return_value=(card_number, hashed_pin))
+
+    with patch('builtins.input', side_effect=[pin, "-100"]):
+        with pytest.raises(ValueError, match="Daily limit must be greater than zero."):
+            account_manager.set_daily_limit(card_number)

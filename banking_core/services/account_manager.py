@@ -9,9 +9,14 @@ class AccountManager:
         self.db = DatabaseManager()
 
     def create_account(self):
-        card_number = self.generate_card_number()
+        while True:
+            card_number = self.generate_card_number()
+            if not self.db.fetch_one("SELECT number FROM card WHERE number = ?", (card_number,)):
+                break
+
         pin = self.generate_pin()
         hashed_pin = self.hash_pin(pin)
+
         self.db.execute_query("INSERT INTO card (number, pin, balance) VALUES (?, ?, 0)", (card_number, hashed_pin))
         return card_number, pin
 
@@ -47,32 +52,41 @@ class AccountManager:
         return result[0] if result else 0
 
     def add_income(self, card_number, income):
+        if not isinstance(income, int) or income <= 0:
+            raise ValueError("Income must be a positive number.")
         self.db.execute_query("UPDATE card SET balance = balance + ? WHERE number = ?", (income, card_number))
+        print(f"Income of {income} has been added to your account.")
 
     def transfer(self, source_card, target_card, amount):
-        if not is_valid_card_number(target_card):
-            raise ValueError("Invalid card number.")
+        try:
+            if not target_card.isdigit() or len(target_card) != 16:
+                raise ValueError("Invalid card number.")
 
-        if self.get_balance(source_card) < amount:
-            raise ValueError("Not enough balance.")
+            if target_card == source_card:
+                raise ValueError("Cannot transfer to the same account.")
 
-        limit_data = self.db.get_daily_limit(source_card)
-        if limit_data:
-            daily_limit = limit_data[0]
-            changes_today = limit_data[1]
-            set_date = limit_data[2]
+            target_exists = self.db.fetch_one("SELECT * FROM card WHERE number = ?", (target_card,))
+            if not target_exists:
+                raise ValueError("Target account does not exist.")
 
-            if amount > daily_limit:
-                raise ValueError(f"Transaction denied: You cannot exceed your daily limit of {daily_limit}.")
+            if amount <= 0:
+                raise ValueError("Transfer amount must be greater than zero.")
 
-            if changes_today >= 3:
-                raise ValueError("You have reached the maximum number of changes for today. Try again tomorrow.")
+            if self.get_balance(source_card) < amount:
+                raise ValueError("Not enough balance.")
 
-        self.db.execute_query('UPDATE card SET balance = balance - ? WHERE number = ?', (amount, source_card))
-        self.db.execute_query('UPDATE card SET balance = balance + ? WHERE number = ?', (amount, target_card))
+            self.db.execute_query('UPDATE card SET balance = balance - ? WHERE number = ?', (amount, source_card))
+            self.db.execute_query('UPDATE card SET balance = balance + ? WHERE number = ?', (amount, target_card))
 
-        self.record_transaction(source_card, "transfer_out", -amount)
-        self.record_transaction(target_card, "transfer_in", amount)
+            self.record_transaction(source_card, "transfer_out", -amount)
+            self.record_transaction(target_card, "transfer_in", amount)
+            print("Success!")
+        except ValueError as e:
+            print(e)
+            raise
+        except Exception as e:
+            print("Unexpected error occurred:", e)
+            raise
 
     def close_account(self, card_number):
         cursor = self.db.conn.cursor()
@@ -122,8 +136,15 @@ class AccountManager:
         cursor.execute("SELECT pin FROM card WHERE number = ?", (card_number,))
         stored_pin = cursor.fetchone()[0]
 
-        if pin == stored_pin:
-            new_limit = int(input("Enter your new daily transaction limit: "))
+        if self.check_pin(stored_pin, pin):
+            try:
+                new_limit = int(input("Enter your new daily transaction limit: "))
+                if new_limit <= 0:
+                    raise ValueError("Daily limit must be greater than zero.")
+            except ValueError as ve:
+                raise ve
+            except Exception:
+                raise ValueError("Invalid input. Please enter a valid number.")
 
             if limit_data:
                 self.db.update_daily_limit(card_number, new_limit)

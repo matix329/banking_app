@@ -1,6 +1,6 @@
 import pytest
-from unittest.mock import patch
 from banking_core.services.account_manager import AccountManager
+from unittest.mock import MagicMock, patch
 
 @pytest.fixture
 def account_manager():
@@ -58,15 +58,29 @@ def test_close_account_not_found():
 
 
 def test_lock_account_after_failed_attempt(account_manager):
-    card_number, pin = account_manager.create_account()
+    account_manager.db = MagicMock()
 
-    with patch.object(account_manager.db, 'fetch_one', return_value=(card_number, 'hashedpin', 0, False)):
-        assert not account_manager.log_into_account(card_number, "wrongpin")
-        assert not account_manager.log_into_account(card_number, "wrongpin")
+    account_manager.db.fetch_one.side_effect = [
+        (1, False),
+        (2, False),
+        (3, False),
+        (3, True)
+    ]
 
-        with pytest.raises(ValueError, match="Your account has been locked due to multiple failed login attempts."):
-            account_manager.log_into_account(card_number, "wrongpin")
+    card_number = "4000001234567890"
 
+    account_manager.lock_account_after_failed_attempt(card_number)
+    account_manager.lock_account_after_failed_attempt(card_number)
+
+    with pytest.raises(ValueError, match="Your account has been locked due to multiple failed login attempts."):
+        account_manager.lock_account_after_failed_attempt(card_number)
+
+    account_manager.db.execute_query.assert_any_call(
+        "UPDATE card SET locked = 1 WHERE number = ?", (card_number,)
+    )
+
+    with pytest.raises(ValueError, match="Your account is already locked."):
+        account_manager.lock_account_after_failed_attempt(card_number)
 
 def test_account_locked(account_manager):
     card_number, pin = account_manager.create_account()
@@ -74,3 +88,12 @@ def test_account_locked(account_manager):
     with patch.object(account_manager.db, 'fetch_one', return_value=(card_number, 'hashedpin', 3, True)):
         with pytest.raises(ValueError, match="This account is locked due to multiple failed login attempts."):
             account_manager.log_into_account(card_number, pin)
+
+
+def test_hash_pin(account_manager):
+    pin = "1234"
+    hashed_pin = account_manager.hash_pin(pin)
+
+    assert hashed_pin != pin, "Hashed PIN should not be equal to the original PIN"
+
+    assert account_manager.check_pin(hashed_pin, pin), "The PIN does not match the hash"

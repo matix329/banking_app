@@ -1,3 +1,4 @@
 pytest
-sqlite3
+psycopg2
 random
+python-dotenv

@@ -1,44 +1,55 @@
-import sqlite3
+import psycopg2
 from datetime import datetime
+import os
+from dotenv import load_dotenv
 
 class DatabaseManager:
-    def __init__(self, db_name="card.s3db"):
+    def __init__(self):
+        load_dotenv()
         try:
-            self.conn = sqlite3.connect(db_name)
+            self.conn = psycopg2.connect(
+                dbname=os.getenv("DB_NAME"),
+                user=os.getenv("DB_USER"),
+                password=os.getenv("DB_PASSWORD"),
+                host=os.getenv("DB_HOST"),
+                port=os.getenv("DB_PORT")
+            )
             self.setup_database()
-        except sqlite3.Error as e:
+        except psycopg2.Error as e:
             print(f"Database connection error: {e}")
             raise Exception(f"Database connection error: {e}")
 
     def setup_database(self):
         if self.conn:
             try:
-                with self.conn:
-                    self.conn.execute('''CREATE TABLE IF NOT EXISTS card (
-                                            id INTEGER PRIMARY KEY,
-                                            number TEXT UNIQUE,
-                                            pin TEXT,
-                                            balance INTEGER DEFAULT 0,
-                                            failed_attempts INTEGER DEFAULT 0,
-                                            locked BOOLEAN DEFAULT 0
-                                        );''')
-                    self.conn.execute('''CREATE TABLE IF NOT EXISTS transactions (
-                                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                            account_number TEXT,
-                                            transaction_type TEXT,
-                                            amount INTEGER,
-                                            date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                            FOREIGN KEY (account_number) REFERENCES card(number)
-                                        );''')
-                    self.conn.execute('''CREATE TABLE IF NOT EXISTS daily_limits (
-                                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                            account_number TEXT,
-                                            daily_limit INTEGER,
-                                            set_date TEXT,
-                                            changes_today INTEGER DEFAULT 0,
-                                            FOREIGN KEY (account_number) REFERENCES card(number)
-                                        );''')
-            except sqlite3.Error as e:
+                cursor = self.conn.cursor()
+                cursor.execute('''CREATE TABLE IF NOT EXISTS card (
+                                    id SERIAL PRIMARY KEY,
+                                    number TEXT UNIQUE,
+                                    pin TEXT,
+                                    balance INTEGER DEFAULT 0,
+                                    failed_attempts INTEGER DEFAULT 0,
+                                    locked BOOLEAN DEFAULT FALSE
+                                );''')
+                cursor.execute('''CREATE TABLE IF NOT EXISTS transactions (
+                                    id SERIAL PRIMARY KEY,
+                                    account_number TEXT,
+                                    transaction_type TEXT,
+                                    amount INTEGER,
+                                    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                    FOREIGN KEY (account_number) REFERENCES card(number)
+                                );''')
+                cursor.execute('''CREATE TABLE IF NOT EXISTS daily_limits (
+                                    id SERIAL PRIMARY KEY,
+                                    account_number TEXT,
+                                    daily_limit INTEGER,
+                                    set_date TEXT,
+                                    changes_today INTEGER DEFAULT 0,
+                                    FOREIGN KEY (account_number) REFERENCES card(number)
+                                );''')
+                self.conn.commit()
+                cursor.close()
+            except psycopg2.Error as e:
                 print(f"Error setting up the database: {e}")
                 raise
         else:
@@ -48,9 +59,11 @@ class DatabaseManager:
     def execute_query(self, query, params=()):
         if self.conn:
             try:
-                with self.conn:
-                    self.conn.execute(query, params)
-            except sqlite3.Error as e:
+                cursor = self.conn.cursor()
+                cursor.execute(query, params)
+                self.conn.commit()
+                cursor.close()
+            except psycopg2.Error as e:
                 print(f"Database query error: {e}")
                 raise
         else:
@@ -61,9 +74,10 @@ class DatabaseManager:
         if self.conn:
             cursor = self.conn.cursor()
             try:
+                cursor = self.conn.cursor()
                 cursor.execute(query, params)
                 return cursor.fetchone()
-            except sqlite3.Error as e:
+            except psycopg2.Error as e:
                 print(f"Database query error: {e}")
                 raise
         else:
@@ -74,7 +88,7 @@ class DatabaseManager:
         if self.conn:
             try:
                 self.conn.close()
-            except sqlite3.Error as e:
+            except psycopg2.Error as e:
                 print(f"Error closing the database connection: {e}")
                 raise
         else:
@@ -84,7 +98,7 @@ class DatabaseManager:
     def get_daily_limit(self, account_number):
         cursor = self.conn.cursor()
         cursor.execute('''SELECT daily_limit, changes_today, set_date 
-                          FROM daily_limits WHERE account_number = ? ORDER BY set_date DESC LIMIT 1''',
+                          FROM daily_limits WHERE account_number = %s ORDER BY set_date DESC LIMIT 1''',
                        (account_number,))
         result = cursor.fetchone()
         if result:
@@ -96,9 +110,9 @@ class DatabaseManager:
         current_date = datetime.now().date()
         try:
             cursor.execute('''INSERT INTO daily_limits (account_number, daily_limit, set_date, changes_today)
-                              VALUES (?, ?, ?, ?)''', (account_number, daily_limit, str(current_date), 0))
+                              VALUES (%s, %s, %s, %s)''', (account_number, daily_limit, str(current_date), 0))
             self.conn.commit()
-        except sqlite3.Error as e:
+        except psycopg2.Error as e:
             print(f"Error adding daily limit: {e}")
             raise
 
@@ -107,10 +121,10 @@ class DatabaseManager:
         current_date = datetime.now().date()
         try:
             cursor.execute('''UPDATE daily_limits
-                              SET daily_limit = ?, set_date = ?, changes_today = changes_today + 1
-                              WHERE account_number = ? AND set_date = ?''',
+                              SET daily_limit = %s, set_date = %s, changes_today = changes_today + 1
+                              WHERE account_number = %s AND set_date = %s''',
                            (new_limit, str(current_date), account_number, str(current_date)))
             self.conn.commit()
-        except sqlite3.Error as e:
+        except psycopg2.Error as e:
             print(f"Error updating daily limit: {e}")
             raise

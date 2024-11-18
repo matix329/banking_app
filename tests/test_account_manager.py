@@ -1,6 +1,7 @@
 import pytest
 from banking_core.services.account_manager import AccountManager
 from unittest.mock import MagicMock, patch
+from banking_core.services.pin_hasher import PinHasher
 
 @pytest.fixture
 def account_manager():
@@ -13,10 +14,16 @@ def test_create_account(account_manager):
 
 def test_log_into_account(account_manager):
     card_number, pin = account_manager.create_account()
+
+    print(f"Created account with PIN: {pin}")
+
     success = account_manager.log_into_account(card_number, pin)
     assert success, "User should be able to log in with correct card number and PIN"
 
     wrong_pin = "0000"
+
+    print(f"Attempting to log in with wrong PIN: {wrong_pin}")
+
     failure = account_manager.log_into_account(card_number, wrong_pin)
     assert not failure, "User should not be able to log in with incorrect PIN"
 
@@ -92,9 +99,8 @@ def test_lock_account_after_failed_attempt(account_manager):
         account_manager.lock_account_after_failed_attempt(card_number)
 
     account_manager.db.execute_query.assert_any_call(
-        "UPDATE card SET locked = 1 WHERE number = ?", (card_number,)
+        "UPDATE card SET locked = 1 WHERE number = %s", (card_number,)
     )
-
     with pytest.raises(ValueError, match="Your account is already locked."):
         account_manager.lock_account_after_failed_attempt(card_number)
 
@@ -105,17 +111,18 @@ def test_account_locked(account_manager):
         with pytest.raises(ValueError, match="This account is locked due to multiple failed login attempts."):
             account_manager.log_into_account(card_number, pin)
 
+
 def test_hash_pin(account_manager):
     pin = "1234"
-    hashed_pin = account_manager.hash_pin(pin)
+    hashed_pin = PinHasher.hash_pin(pin)
 
     assert hashed_pin != pin, "Hashed PIN should not be equal to the original PIN"
 
-    assert account_manager.check_pin(hashed_pin, pin), "The PIN does not match the hash"
+    assert PinHasher.check_pin(hashed_pin, pin), "The PIN does not match the hash"
 
 def test_set_daily_limit_with_invalid_input(account_manager):
     card_number, pin = account_manager.create_account()
-    hashed_pin = account_manager.hash_pin(pin)
+    hashed_pin = PinHasher.hash_pin(pin)
 
     account_manager.db.fetch_one = MagicMock(return_value=(card_number, hashed_pin))
 

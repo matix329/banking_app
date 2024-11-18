@@ -87,3 +87,27 @@
 
 ### Removed
 - **Unnecessary Error Messages**: Cleaned up redundant error messages for invalid inputs in certain functions, streamlining user experience.
+
+## [1.3.0] - 2024-11-18
+
+### Added
+- **PinHasher Class**: Added a new class `PinHasher` to handle PIN hashing and PIN verification. 
+  - **`hash_pin`**: Hashes a given PIN using bcrypt.
+  - **`check_pin`**: Verifies if an entered PIN matches the hashed PIN stored in the database.
+
+- **Tests for PinHasher**: Added unit tests for `PinHasher` to verify hashing and PIN validation functionality.
+
+- **Docker Support**: 
+  - Added `Dockerfile` and `docker-compose.yml` for containerized development.
+  - Configured the application to run within Docker with PostgreSQL as the database service.
+  - Created an easy-to-use environment for running the application with Docker.
+
+### Changed
+- **Database Change**: Migrated from SQLite to PostgreSQL as the primary database engine. All database interactions were modified to support PostgreSQL using `psycopg2`.
+- Updated configuration to include PostgreSQL-specific settings in the `.env` file.
+- Modified Docker configuration to ensure the app container is correctly linked to the PostgreSQL container.
+
+### Fixed
+- Corrected database connection and query logic to work with PostgreSQL.
+- Adjusted all tests to work with PostgreSQL instead of SQLite, ensuring compatibility with the new database system.
+- Fixed Docker-related issues to ensure smooth container startup and functionality.

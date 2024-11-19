@@ -1,6 +1,6 @@
 # Banking App
 
-A simple banking system in Python with functionalities for creating accounts, logging in, transferring funds, and managing account balances. The application is built using SQLite for data storage and includes basic validation with the Luhn algorithm for card numbers.
+A simple banking system in Python with functionalities for creating accounts, logging in, transferring funds, and managing account balances. The application is built using PostgreSQL for data storage.
 
 ## Features
 - **Account Creation**: Generate a new card number and PIN for a user.

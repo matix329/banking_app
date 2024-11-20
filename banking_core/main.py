@@ -4,10 +4,9 @@ from banking_core.database.db_manager import DatabaseManager
 def main():
     db = DatabaseManager()
     pin_hasher = PinHasher()
-
-    account_creator = AccountCreator(db)
-    account_authenticator = AccountAuthenticator(db, pin_hasher)
     account_locker = AccountLocker(db)
+    account_authenticator = AccountAuthenticator(db, pin_hasher, account_locker)
+    account_creator = AccountCreator(db)
     transaction_manager = TransactionManager(db)
     limit_manager = LimitManager(db)
 

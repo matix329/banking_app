@@ -14,12 +14,13 @@ class AccountAuthenticator:
             stored_card_number, stored_hash, failed_attempts, locked = result
 
             if locked:
-                raise ValueError("This account is locked due to multiple failed login attempts.")
+                raise ValueError("Your account is already locked.")
 
-            if self.pin_hasher.check_pin(stored_hash, pin):
+            if PinHasher.check_pin(stored_hash, pin):
                 self.db.execute_query("UPDATE card SET failed_attempts = 0 WHERE number = %s", (card_number,))
                 return True
             else:
                 self.account_locker.lock_account_after_failed_attempt(card_number)
                 return False
-        return False
+        else:
+            raise ValueError("Account not found.")

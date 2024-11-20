@@ -4,12 +4,12 @@ class AccountLocker:
 
     def lock_account_after_failed_attempt(self, card_number):
         self.db.execute_query("UPDATE card SET failed_attempts = failed_attempts + 1 WHERE number = %s", (card_number,))
-        result = self.db.fetch_one("SELECT failed_attempts, locked FROM card WHERE number = %s", (card_number,))
-
+        result = self.db.fetch_one("SELECT number, pin, failed_attempts, locked FROM card WHERE number = %s",
+                                   (card_number,))
         if not result:
             raise ValueError("Account not found.")
 
-        failed_attempts = result[0]
+        failed_attempts = int(result[0])
         locked = result[1]
 
         if locked:

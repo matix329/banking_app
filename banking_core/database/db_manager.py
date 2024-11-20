@@ -74,7 +74,6 @@ class DatabaseManager:
         if self.conn:
             cursor = self.conn.cursor()
             try:
-                cursor = self.conn.cursor()
                 cursor.execute(query, params)
                 return cursor.fetchone()
             except psycopg2.Error as e:
@@ -128,3 +127,13 @@ class DatabaseManager:
         except psycopg2.Error as e:
             print(f"Error updating daily limit: {e}")
             raise
+
+    def lock_account(self, card_number):
+        cursor = self.conn.cursor()
+        cursor.execute('''UPDATE card SET locked = TRUE WHERE number = %s''', (card_number,))
+        self.conn.commit()
+
+    def unlock_account(self, card_number):
+        cursor = self.conn.cursor()
+        cursor.execute('''UPDATE card SET locked = FALSE, failed_attempts = 0 WHERE number = %s''', (card_number,))
+        self.conn.commit()

@@ -1,6 +1,6 @@
 import random
-from banking_core.utils.constants import CARD_PREFIX, CARD_LENGTH, PIN_LENGTH
-from banking_core.services.utils.pin_hasher import PinHasher
+from ..utils.constants import CARD_PREFIX, CARD_LENGTH, PIN_LENGTH
+from banking_core.services import PinHasher
 
 class AccountCreator:
     def __init__(self, db):

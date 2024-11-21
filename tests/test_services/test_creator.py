@@ -53,19 +53,16 @@ def test_calculate_luhn_checksum(mock_account_creator):
     assert isinstance(checksum, int)
     assert 0 <= checksum < 10
 
+
 def test_create_account(mock_account_creator, mock_database, pinhash):
     db_mock = mock_database
     db_mock.fetch_one.return_value = None
-
     card_number, pin = mock_account_creator.create_account()
-
     assert_card_number(card_number)
     assert_pin(pin)
     db_mock.fetch_one.assert_any_call("SELECT number FROM card WHERE number = %s", (card_number,))
-
     hashed_pin = pinhash.hash_pin(pin)
-
     args, kwargs = db_mock.execute_query.call_args
     assert args[0] == "INSERT INTO card (number, pin, balance) VALUES (%s, %s, 0)"
     assert args[1][0] == card_number
-    assert args[1][1].startswith(b'$2b$')
+    assert args[1][1].startswith("$argon2id$")

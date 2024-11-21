@@ -1,14 +1,15 @@
 from banking_core.services import AccountCreator, AccountAuthenticator, AccountLocker, TransactionManager, LimitManager, InputValidator, PinHasher
-from banking_core.database.db_manager import DatabaseManager
+from banking_core.database import *
 
 def main():
-    db = DatabaseManager()
+    db_connection = DatabaseConnection()
+    db_manager = BaseManager(db_connection.get_connection())
     pin_hasher = PinHasher()
-    account_locker = AccountLocker(db)
-    account_authenticator = AccountAuthenticator(db, pin_hasher, account_locker)
-    account_creator = AccountCreator(db)
-    transaction_manager = TransactionManager(db)
-    limit_manager = LimitManager(db)
+    account_locker = AccountLocker(db_manager)
+    account_authenticator = AccountAuthenticator(db_manager, pin_hasher, account_locker)
+    account_creator = AccountCreator(db_manager)
+    transaction_manager = TransactionManager(db_manager)
+    limit_manager = LimitManager(db_manager)
 
     def main_menu():
         print("1. Create an account\n2. Log into account\n0. Exit")
@@ -38,6 +39,7 @@ def main():
                     if inner_choice == '1':
                         print(f"Balance: {transaction_manager.get_balance(card_number)}")
 
+                    # TODO: Change int to float and check if only two decimal places
                     elif inner_choice == '2':
                         income = InputValidator.get_positive_integer("Enter income: ")
                         transaction_manager.add_income(card_number, income)
@@ -45,17 +47,22 @@ def main():
                     elif inner_choice == '3':
                         target_card = input("Enter card number: ")
                         amount = InputValidator.get_positive_integer("Enter amount: ")
-                        transaction_manager.transfer(card_number, target_card, amount)
+                        try:
+                            transaction_manager.transfer(card_number, target_card, amount)
+                        except ValueError as e:
+                            print(e)
 
                     elif inner_choice == '4':
                         print("Transaction history:")
                         transaction_manager.get_transaction_history(card_number)
 
+                    # TODO: Add pin confirmation
                     elif inner_choice == '5':
                         account_locker.lock_account(card_number)
                         print("Account has been closed.")
                         break
 
+                    # TODO: Repair connection with database. Classes LimitManager and DailyLimitManager do not work properly
                     elif inner_choice == '6':
                         limit_manager.set_daily_limit(card_number)
 

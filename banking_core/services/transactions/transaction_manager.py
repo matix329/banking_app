@@ -8,7 +8,6 @@ class TransactionManager:
         TransactionValidator.validate_transfer(source_card, target_card, amount, self.db)
 
         try:
-
             self.db.execute_query(
                 "UPDATE card SET balance = balance - %s WHERE number = %s",
                 (amount, source_card)
@@ -18,7 +17,6 @@ class TransactionManager:
                 "UPDATE card SET balance = balance + %s WHERE number = %s",
                 (amount, target_card)
             )
-
             self.record_transaction(source_card, "transfer_out", -amount)
             self.record_transaction(target_card, "transfer_in", amount)
 
@@ -44,3 +42,14 @@ class TransactionManager:
                 print(f"Date: {transaction[0]}, Type: {transaction[1]}, Amount: {transaction[2]}")
         else:
             print("No transactions found for this account.")
+
+    def record_transaction(self, card_number, transaction_type, amount):
+        query = """
+            INSERT INTO transactions (account_number, transaction_type, amount, date)
+            VALUES (%s, %s, %s, NOW())
+        """
+        self.db.execute_query(query, (card_number, transaction_type, amount))
+
+    def get_balance(self, card_number):
+        result = self.db.fetch_one("SELECT balance FROM card WHERE number = %s", (card_number,))
+        return result[0] if result else 0

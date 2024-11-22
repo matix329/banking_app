@@ -1,3 +1,5 @@
+from banking_core.services import PinHasher
+
 class AccountLocker:
     def __init__(self, db):
         self.db = db
@@ -9,8 +11,24 @@ class AccountLocker:
         failed_attempts, locked = result
         return failed_attempts, locked
 
-    def lock_account(self, card_number):
-        self.db.execute_query("UPDATE card SET locked = TRUE, failed_attempts = 0 WHERE number = %s", (card_number,))
+    def lock_account(self, card_number, pin):
+        result = self.db.fetch_one("SELECT number, pin, failed_attempts, locked FROM card WHERE number = %s",
+                                   (card_number,))
+
+        if result:
+            stored_card_number, stored_hash, failed_attempts, locked = result
+
+            if locked:
+                raise ValueError("Your account is already locked.")
+
+            if PinHasher.check_pin(stored_hash, pin):
+                self.db.execute_query("UPDATE card SET locked = TRUE, failed_attempts = 0 WHERE number = %s",
+                                      (card_number,))
+                return True
+            else:
+                raise ValueError("Incorrect PIN. Please try again.")
+        else:
+            raise ValueError("Account with specified card number not found. Please double-check the number.")
 
     def unlock_account(self, card_number):
         _, locked = self.get_account_status(card_number)

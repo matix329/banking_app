@@ -30,55 +30,65 @@ def main():
         elif choice == '2':
             card_number = input("Enter your card number: ")
             pin = input("Enter your PIN: ")
-            if account_authenticator.log_into_account(card_number, pin):
-                print("You have successfully logged in!")
-                while True:
-                    account_menu()
-                    inner_choice = input("Choose an option: ")
+            try:
+                if account_authenticator.log_into_account(card_number, pin):
+                    print("You have successfully logged in!")
+                    while True:
+                        account_menu()
+                        inner_choice = input("Choose an option: ")
 
-                    if inner_choice == '1':
-                        print(f"Balance: {transaction_manager.get_balance(card_number)}")
+                        if inner_choice == '1':
+                            print(f"Balance: {transaction_manager.get_balance(card_number)}")
 
-                    # TODO: Change int to float and check if only two decimal places
-                    elif inner_choice == '2':
-                        income = InputValidator.get_positive_integer("Enter income: ")
-                        transaction_manager.add_income(card_number, income)
+                        # TODO: Change int to float and check if only two decimal places
+                        elif inner_choice == '2':
+                            income = InputValidator.get_positive_integer("Enter income: ")
+                            transaction_manager.add_income(card_number, income)
 
-                    elif inner_choice == '3':
-                        target_card = input("Enter card number: ")
-                        amount = InputValidator.get_positive_integer("Enter amount: ")
-                        try:
-                            transaction_manager.transfer(card_number, target_card, amount)
-                        except ValueError as e:
-                            print(e)
+                        elif inner_choice == '3':
+                            target_card = input("Enter card number: ")
+                            amount = InputValidator.get_positive_integer("Enter amount: ")
+                            try:
+                                transaction_manager.transfer(card_number, target_card, amount)
+                            except ValueError as e:
+                                print(e)
 
-                    elif inner_choice == '4':
-                        print("Transaction history:")
-                        transaction_manager.get_transaction_history(card_number)
+                        elif inner_choice == '4':
+                            print("Transaction history:")
+                            transaction_manager.get_transaction_history(card_number)
 
-                    # TODO: Add pin confirmation
-                    elif inner_choice == '5':
-                        account_locker.lock_account(card_number)
-                        print("Account has been closed.")
-                        break
+                        elif inner_choice == '5':
+                            while True:
+                                pin = input("Enter your PIN: ")
+                                try:
+                                    if account_locker.lock_account(card_number, pin):
+                                        print("Account has been closed.")
+                                        break
+                                except ValueError as e:
+                                    print(e)
+                                    continue
+                            break
 
-                    # TODO: Repair connection with database. Classes LimitManager and DailyLimitManager do not work properly
-                    elif inner_choice == '6':
-                        limit_manager.set_daily_limit(card_number)
+                        # TODO: Repair connection with database. Classes LimitManager and DailyLimitManager do not work properly
+                        elif inner_choice == '6':
+                            limit_manager.set_daily_limit(card_number)
 
-                    elif inner_choice == '7':
-                        print("You have successfully logged out!")
-                        break
+                        elif inner_choice == '7':
+                            print("You have successfully logged out!")
+                            break
 
-                    elif inner_choice == '0':
-                        print("Bye!")
-                        return
+                        elif inner_choice == '0':
+                            print("Bye!")
+                            return
 
-                    else:
-                        print("Invalid option. Please try again.")
+                        else:
+                            print("Invalid option. Please try again.")
 
-            else:
-                print("Wrong card number or PIN!")
+                else:
+                    print("Wrong card number or PIN!")
+
+            except ValueError as e:
+                print(e)
 
         elif choice == '0':
             print('Bye!')

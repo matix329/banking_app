@@ -1,5 +1,5 @@
 pytest
 psycopg2-binary
 python-dotenv
-bcrypt
 pytest-mock
+sphinx

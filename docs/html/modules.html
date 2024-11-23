@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Modules &#8212; banking_app 1.3.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=1f29e9d3"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="User Guide" href="user_guide.html" />
+    <link rel="prev" title="Banking App Documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="modules">
+<h1>Modules<a class="headerlink" href="#modules" title="Link to this heading">¶</a></h1>
+<p>This section provides an overview of the core modules in the project, including their functionalities and key methods.</p>
+<section id="core-modules">
+<h2>Core Modules<a class="headerlink" href="#core-modules" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+<section id="database-module">
+<h1>Database Module<a class="headerlink" href="#database-module" title="Link to this heading">¶</a></h1>
+<p>Handles all interactions with the database, including CRUD operations for accounts and transactions.</p>
+<section id="main-classes-and-functions">
+<h2>Main Classes and Functions:<a class="headerlink" href="#main-classes-and-functions" title="Link to this heading">¶</a></h2>
+<ul>
+<li><p><strong>`BaseManager`</strong>
+- Executes generic database queries:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>execute_query(query, params=())</cite>: Executes an SQL query (e.g., INSERT, UPDATE).</p></li>
+<li><p><cite>fetch_one(query, params=())</cite>: Fetches a single record.</p></li>
+<li><p><cite>fetch_all(query, params=())</cite>: Fetches all matching records.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><strong>`CardManager`</strong>
+- Manages account-related operations:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>lock_account(card_number)</cite>: Locks an account.</p></li>
+<li><p><cite>unlock_account(card_number)</cite>: Unlocks an account.</p></li>
+<li><p><cite>get_balance(card_number)</cite>: Retrieves the account’s balance.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><strong>`DailyLimitManager`</strong>
+- Handles daily transaction limits:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>get_daily_limit(account_number)</cite>: Retrieves the daily limit.</p></li>
+<li><p><cite>update_daily_limit(account_number, new_limit)</cite>: Updates the transaction limit.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>—</p>
+</section>
+<section id="accounts-module">
+<h2>Accounts Module<a class="headerlink" href="#accounts-module" title="Link to this heading">¶</a></h2>
+<p>Manages account-related operations, such as account creation, locking, and unlocking.</p>
+<p><strong>Main Classes and Functions:</strong></p>
+<ul>
+<li><p><strong>`AccountAuthenticator`</strong>
+- Handles login functionality:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>log_into_account(card_number, pin)</cite>: Verifies login credentials and checks lock status.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><strong>`AccountCreator`</strong>
+- Manages account creation:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>create_account()</cite>: Generates a new account with a card number and PIN.</p></li>
+<li><p><cite>generate_card_number()</cite>: Uses the Luhn algorithm to generate a card number.</p></li>
+<li><p><cite>generate_pin()</cite>: Creates a 4-digit random PIN.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><strong>`AccountLocker`</strong>
+- Manages account locking and unlocking:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>lock_account(card_number, pin)</cite>: Locks an account if the PIN is correct.</p></li>
+<li><p><cite>unlock_account(card_number)</cite>: Unlocks an account.</p></li>
+<li><p><cite>lock_account_after_failed_attempt(card_number)</cite>: Locks the account after multiple failed login attempts.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>—</p>
+</section>
+<section id="transactions-module">
+<h2>Transactions Module<a class="headerlink" href="#transactions-module" title="Link to this heading">¶</a></h2>
+<p>Handles financial transactions, such as transfers and income additions.</p>
+<p><strong>Main Classes and Functions:</strong></p>
+<ul>
+<li><p><strong>`TransactionManager`</strong>
+- Processes financial transactions:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>transfer(source_card, target_card, amount)</cite>: Transfers money between accounts.</p></li>
+<li><p><cite>add_income(card_number, amount)</cite>: Adds income to an account.</p></li>
+<li><p><cite>get_transaction_history(card_number)</cite>: Retrieves the transaction history.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><strong>`TransactionValidator`</strong>
+- Validates transaction rules and sufficiency of funds:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>validate_transfer(source_card, target_card, amount)</cite>: Checks if a transfer is valid.</p></li>
+<li><p><cite>validate_amount(amount)</cite>: Ensures the amount is positive.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>—</p>
+</section>
+<section id="utils-module">
+<h2>Utils Module<a class="headerlink" href="#utils-module" title="Link to this heading">¶</a></h2>
+<p>Provides utility functions, such as hashing PINs and validating user input.</p>
+<p><strong>Main Classes and Functions:</strong></p>
+<ul>
+<li><p><strong>`PinHasher`</strong>
+- Handles PIN hashing and validation:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>hash_pin(pin)</cite>: Hashes a plaintext PIN.</p></li>
+<li><p><cite>check_pin(hashed_pin, entered_pin)</cite>: Validates the entered PIN.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><strong>`InputValidator`</strong>
+- Ensures user input is valid:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>get_positive_integer(prompt)</cite>: Prompts the user for a positive integer.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><strong>`LimitValidator`</strong>
+- Validates transaction limit changes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>validate_limit_change(current_limit, new_limit)</cite>: Ensures new limits are valid.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</section>
+<section id="limits-module">
+<h2>Limits Module<a class="headerlink" href="#limits-module" title="Link to this heading">¶</a></h2>
+<p>Handles validation and management of account transaction limits. This module ensures secure updates and retrieval of daily or transaction-specific limits.</p>
+<p><strong>Main Classes and Functions:</strong></p>
+<ul>
+<li><p><strong>`LimitManager`</strong>
+- Manages account limits and updates.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>get_daily_limit(account_number)</cite>: Retrieves the daily transaction limit for a given account.</p></li>
+<li><p><cite>set_daily_limit(account_number, new_limit)</cite>: Updates the daily limit for the specified account.</p></li>
+<li><p><cite>validate_limit_change(account_number, new_limit)</cite>: Validates if a proposed new limit complies with business rules.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><strong>`LimitValidator`</strong>
+- Validates transaction limits and ensures compliance.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>validate_transaction_limit(account_number, amount)</cite>: Ensures the transaction is within the allowed limit.</p></li>
+<li><p><cite>validate_daily_limit(account_number, amount)</cite>: Checks if the transaction exceeds the daily limit.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">banking_app</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Documentation Overview:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#core-modules">Core Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#database-module">Database Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#main-classes-and-functions">Main Classes and Functions:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accounts-module">Accounts Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#transactions-module">Transactions Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#utils-module">Utils Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#limits-module">Limits Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Banking App Documentation</a></li>
+      <li>Next: <a href="user_guide.html" title="next chapter">User Guide</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Mateusz Siejo.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/modules.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

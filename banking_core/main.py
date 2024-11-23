@@ -69,7 +69,6 @@ def main():
                                     continue
                             break
 
-                        # TODO: Repair connection with database. Classes LimitManager and DailyLimitManager do not work properly
                         elif inner_choice == '6':
                             limit_manager.set_daily_limit(card_number)
 

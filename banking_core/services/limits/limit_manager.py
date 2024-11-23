@@ -40,6 +40,7 @@ class LimitManager:
         cursor = self.db.conn.cursor()
         cursor.execute("SELECT pin FROM card WHERE number = %s", (card_number,))
         result = cursor.fetchone()
+        cursor.close()
         if not result:
             raise ValueError("Card number not found.")
         return result[0]
@@ -55,8 +56,7 @@ class LimitManager:
                 print(f"Invalid input: {ve}. Please try again.")
 
     def update_or_add_limit(self, card_number, new_limit, limit_data):
-        current_date = str(datetime.now().date())
         if limit_data:
-            self.db.update_daily_limit(card_number, new_limit)
+            self.daily_limit_manager.update_daily_limit(card_number, new_limit)
         else:
-            self.db.add_daily_limit(card_number, new_limit)
+            self.daily_limit_manager.add_daily_limit(card_number, new_limit)

@@ -2,16 +2,8 @@
 
 A simple banking system in Python with functionalities for creating accounts, logging in, transferring funds, and managing account balances. The application is built using PostgreSQL for data storage.
 
-## Features
-- **Account Creation**: Generate a new card number and PIN for a user.
-- **Login**: Authenticate users with their card number and PIN.
-- **Balance Management**: Check balance, add income, and transfer funds between accounts.
-- **Account Closure**: Delete an account from the database.
-- **Card Number Validation**: Uses the Luhn algorithm to validate card numbers.
-- **Transaction history**: View a log of past transactions
-- **Daily Transaction Limit**: Set, update, and track daily transaction limits for each account (with a limit of 3 changes per day).
-- **Limit Checking**: Ensure transactions do not exceed the set daily limit.
-- **Account Locking After Failed Login Attempts**: Lock accounts after 3 consecutive failed login attempts to prevent unauthorized access.
+## Documentation
+[![Documentation Status](https://readthedocs.org/projects/banking-app/badge/?version=latest)](https://banking-app.readthedocs.io/en/latest/)
 
 ## Version
 Current version: 1.3.0

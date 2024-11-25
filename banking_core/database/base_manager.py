@@ -33,4 +33,3 @@ class BaseManager:
             AND set_date::date = CURRENT_DATE
         """
         return self.fetch_one(query, (card_number,))
-

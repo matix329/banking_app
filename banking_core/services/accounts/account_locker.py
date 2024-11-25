@@ -2,14 +2,6 @@ from banking_core.services import PinHasher
 
 class AccountLocker:
     def __init__(self, db):
-        """
-        Initializes the AccountLocker with the provided database instance.
-
-        Parameters
-        ----------
-        db : object
-            The database instance to execute queries on.
-        """
         self.db = db
 
     def get_account_status(self, card_number):

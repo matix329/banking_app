@@ -25,7 +25,7 @@ class TransactionManager:
             raise RuntimeError(f"Transfer failed: {e}")
 
     def add_income(self, card_number, income):
-        if not isinstance(income, (int, float)) or income <= 0:
+        if not isinstance(income, int) or income <= 0:
             raise ValueError("Income must be a positive number.")
         self.db.execute_query("UPDATE card SET balance = balance + %s WHERE number = %s", (income, card_number))
         print(f"Income of {income} has been added to your account.")

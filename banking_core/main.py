@@ -42,12 +42,12 @@ def main():
 
                         # TODO: Change int to float and check if only two decimal places
                         elif inner_choice == '2':
-                            income = InputValidator.get_positive_integer("Enter income: ")
+                            income = InputValidator.get_positive_number("Enter income: ")
                             transaction_manager.add_income(card_number, income)
 
                         elif inner_choice == '3':
                             target_card = input("Enter card number: ")
-                            amount = InputValidator.get_positive_integer("Enter amount: ")
+                            amount = InputValidator.get_positive_number("Enter amount: ")
                             try:
                                 transaction_manager.transfer(card_number, target_card, amount)
                             except ValueError as e:

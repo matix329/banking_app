@@ -9,8 +9,11 @@ class TransactionValidator:
         if target_card == source_card:
             raise ValueError("Cannot transfer to the same account.")
 
-        if amount <= 0:
+        if not isinstance(amount, (int, float)) or amount <= 0:
             raise ValueError("Transfer amount must be greater than zero.")
+
+        if isinstance(amount, float) and amount * 100 % 1 > 0:
+            raise ValueError("Transfer amount must not have more than 2 decimal places.")
 
         target_exists = db.fetch_one("SELECT * FROM card WHERE number = %s", (target_card,))
         if not target_exists:

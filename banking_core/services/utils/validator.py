@@ -19,14 +19,13 @@ class CardValidator:
 
 class InputValidator:
     @staticmethod
-    def get_positive_integer(prompt):
+    def get_positive_number(prompt):
         while True:
-            user_input = input(prompt)
-            if user_input.isdigit():
-                number = int(user_input)
-                if number > 0:
-                    return number
+            try:
+                user_input = float(input(prompt))
+                if user_input > 0 and round(user_input * 100) == user_input * 100:
+                    return user_input
                 else:
-                    print("Please enter a positive number.")
-            else:
+                    print("Please enter a positive number with a maximum of two decimal places.")
+            except ValueError:
                 print("Invalid input. Please enter a valid number.")

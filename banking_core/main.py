@@ -40,7 +40,6 @@ def main():
                         if inner_choice == '1':
                             print(f"Balance: {transaction_manager.get_balance(card_number)}")
 
-                        # TODO: Change int to float and check if only two decimal places
                         elif inner_choice == '2':
                             income = InputValidator.get_positive_integer("Enter income: ")
                             transaction_manager.add_income(card_number, income)

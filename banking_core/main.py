@@ -15,7 +15,7 @@ def main():
         print("1. Create an account\n2. Log into account\n0. Exit")
 
     def account_menu():
-        print("1. Balance\n2. Add income\n3. Do transfer\n4. Transaction history\n5. Close account\n6. Set daily limit\n7. Log out\n0. Exit")
+        print("1. Balance\n2. Add income\n3. Do transfer\n4. Transaction history\n5. Close account\n6. Set daily limit\n7. Add new exchange account\n8. Exchange currency\n9. Log out\n0. Exit")
 
     while True:
         main_menu()
@@ -72,6 +72,12 @@ def main():
                             limit_manager.set_daily_limit(card_number)
 
                         elif inner_choice == '7':
+                            print("The feature of adding new accounts will be added soon.")
+
+                        elif inner_choice == '8':
+                            print("Currency exchange feature will be added soon.")
+
+                        elif inner_choice == '9':
                             print("You have successfully logged out!")
                             break
 

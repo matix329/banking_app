@@ -1,4 +1,4 @@
-from ..database.base_manager import BaseManager
+from ..managers.base_manager import BaseManager
 
 class CardManager(BaseManager):
     def lock_account(self, account_id):
@@ -9,4 +9,4 @@ class CardManager(BaseManager):
     def unlock_account(self, account_id):
         if not account_id:
             raise ValueError("Invalid account ID")
-        self.execute_query('''UPDATE account SET locked = FALSE, failed_attempts = 0 WHERE number = %s''', (account_id,))
+        self.execute_query('''UPDATE account SET locked = FALSE, failed_attempts = 0 WHERE account_number = %s''', (account_id,))

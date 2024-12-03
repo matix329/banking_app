@@ -25,12 +25,11 @@ class BaseManager:
                 print(f"Database query error: {e}")
                 raise
 
-    def get_daily_limit(self, account_id, currency):
+    def get_daily_limit(self, sub_account_id):
         query = """
             SELECT daily_limit, changes_today, set_date 
             FROM daily_limits 
-            WHERE account_id = %s
-            AND currency = %s 
+            WHERE sub_account_id = %s 
             AND set_date::date = CURRENT_DATE
         """
-        return self.fetch_one(query, (account_id, currency))
+        return self.fetch_one(query, (sub_account_id,))

@@ -9,13 +9,14 @@ class AccountCreator:
     def create_account(self):
         while True:
             card_number = self.generate_card_number()
-            if not self.db.fetch_one("SELECT number FROM card WHERE number = %s", (card_number,)):
+            if not self.db.fetch_one("SELECT card_number FROM card WHERE card_number = %s", (card_number,)):
                 break
 
         pin = self.generate_pin()
         hashed_pin = PinHasher.hash_pin(pin)
+        cvv = self.generate_cvv()
 
-        self.db.execute_query("INSERT INTO card (number, pin, balance) VALUES (%s, %s, 0)", (card_number, hashed_pin))
+        self.db.execute_query("INSERT INTO card (card_number, pin, balance, cvv) VALUES (%s, %s, 0, %s)", (card_number, hashed_pin, cvv))
         return card_number, pin
 
     def generate_card_number(self):
@@ -26,6 +27,9 @@ class AccountCreator:
 
     def generate_pin(self):
         return ''.join([str(random.randint(0, 9)) for _ in range(PIN_LENGTH)])
+
+    def generate_cvv(self):
+        return ''.join([str(random.randint(0, 9)) for _ in range(3)])
 
     def calculate_luhn_checksum(self, partial_card_number):
         digits = [int(d) for d in partial_card_number]

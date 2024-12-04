@@ -85,7 +85,7 @@ Provides utility functions, such as hashing PINs and validating user input.
 
 **Main Classes and Functions:**
 
-- **`PinHasher`**
+- **`Hasher`**
   - Handles PIN hashing and validation:
     - `hash_pin(pin)`: Hashes a plaintext PIN.
     - `check_pin(hashed_pin, entered_pin)`: Validates the entered PIN.

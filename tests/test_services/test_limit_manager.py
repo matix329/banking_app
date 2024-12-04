@@ -19,7 +19,7 @@ def test_set_daily_limit_valid_pin(db_mock, limit_manager):
     db_mock.get_daily_limit.return_value = None
 
     with patch('builtins.input', side_effect=['1234', '2000']), \
-         patch('banking_core.services.PinHasher.check_pin', return_value=True) as check_pin_mock:
+         patch('banking_core.services.Hasher.check_pin', return_value=True) as check_pin_mock:
 
         limit_manager.set_daily_limit('123456')
 
@@ -31,7 +31,7 @@ def test_set_daily_limit_invalid_pin(db_mock, limit_manager, capsys):
     db_mock.get_daily_limit.return_value = (1000, 1, str(datetime.now().date()))
 
     with patch('builtins.input', side_effect=['1234']), \
-         patch('banking_core.services.PinHasher.check_pin', return_value=False) as check_pin_mock:
+         patch('banking_core.services.Hasher.check_pin', return_value=False) as check_pin_mock:
 
         limit_manager.set_daily_limit('123456')
 

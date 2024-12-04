@@ -1,5 +1,3 @@
-from ..utils.pin_hasher import PinHasher
-
 class AccountAuthenticator:
     def __init__(self, db, pin_hasher, account_locker):
         self.db = db
@@ -16,7 +14,7 @@ class AccountAuthenticator:
             if locked:
                 raise ValueError("Your account is already locked.")
 
-            if self.pin_hasher.check_pin(stored_hash, pin):
+            if self.pin_hasher.check(stored_hash, pin):
                 self.db.execute_query("UPDATE account SET failed_attempts = 0 WHERE account_number = %s", (account_number,))
                 return True
             else:

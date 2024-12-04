@@ -1,7 +1,7 @@
 from unittest import result
 import pytest
 from unittest.mock import MagicMock
-from banking_core.services import AccountCreator, AccountAuthenticator, AccountLocker, PinHasher
+from banking_core.services import AccountCreator, AccountAuthenticator, AccountLocker, Hasher
 
 @pytest.fixture
 def mocked_db():
@@ -9,7 +9,7 @@ def mocked_db():
 
 @pytest.fixture
 def pin_hasher():
-    return PinHasher()
+    return Hasher()
 
 @pytest.fixture
 def account_locker(mocked_db):
@@ -26,7 +26,7 @@ def account_creator(mocked_db):
 def test_log_into_account_success(account_authenticator, mocked_db):
     card_number = "4000001234567890"
     pin = "1234"
-    hashed_pin = PinHasher.hash_pin(pin)
+    hashed_pin = Hasher.hash(pin)
 
     mocked_db.fetch_one.return_value = (card_number, hashed_pin, 0, False)
     success = account_authenticator.log_into_account(card_number, pin)
@@ -39,7 +39,7 @@ def test_log_into_account_success(account_authenticator, mocked_db):
 def test_log_into_account_failure_wrong_pin(account_authenticator, mocked_db):
     card_number = "4000001234567890"
     wrong_pin = "0000"
-    hashed_pin = PinHasher.hash_pin("1234")
+    hashed_pin = Hasher.hash("1234")
 
     mocked_db.fetch_one.return_value = (card_number, hashed_pin, 0, True)
     with pytest.raises(ValueError, match="Your account is already locked."):
@@ -77,7 +77,7 @@ def test_lock_account_nonexistent(account_locker, mocked_db):
 def test_multiple_failed_login_attempts(account_authenticator, mocked_db):
     card_number = "4000001234567890"
     pin = "1234"
-    hashed_pin = PinHasher.hash_pin(pin)
+    hashed_pin = Hasher.hash(pin)
 
     card_status_responses = [
         (0, False),

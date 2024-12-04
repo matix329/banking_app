@@ -1,7 +1,7 @@
 import pytest
 import random
 from unittest.mock import Mock
-from banking_core.services import CARD_PREFIX, CARD_LENGTH, PIN_LENGTH, AccountCreator, PinHasher
+from banking_core.services import CARD_PREFIX, CARD_LENGTH, PIN_LENGTH, AccountCreator, Hasher
 from dotenv import load_dotenv
 import os
 from bcrypt import hashpw
@@ -10,11 +10,11 @@ load_dotenv()
 
 TEST_SALT = os.getenv("TEST_SALT").encode('utf-8')
 
-class TestPinHasher(PinHasher):
+class TestHasher(Hasher):
     def __init__(self):
         super().__init__()
 
-    def hash_pin(self, pin):
+    def hash(self, pin):
         return hashpw(pin.encode('utf-8'), TEST_SALT)
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def mock_account_creator(mock_database):
 
 @pytest.fixture
 def pinhash():
-    return TestPinHasher()
+    return TestHasher()
 
 def assert_card_number(card_number):
     assert len(card_number) == CARD_LENGTH
@@ -61,7 +61,7 @@ def test_create_account(mock_account_creator, mock_database, pinhash):
     assert_card_number(card_number)
     assert_pin(pin)
     db_mock.fetch_one.assert_any_call("SELECT number FROM card WHERE number = %s", (card_number,))
-    hashed_pin = pinhash.hash_pin(pin)
+    hashed_pin = pinhash.hash(pin)
     args, kwargs = db_mock.execute_query.call_args
     assert args[0] == "INSERT INTO card (number, pin, balance) VALUES (%s, %s, 0)"
     assert args[1][0] == card_number

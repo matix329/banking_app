@@ -1,16 +1,9 @@
-from banking_core.services import AccountCreator, AccountAuthenticator, AccountLocker, TransactionManager, LimitManager, InputValidator, PinHasher
+from banking_core.services import AccountCreator, AccountAuthenticator, AccountLocker, TransactionManager, \
+    CustomerCreator, CustomerAuthenticator, LimitManager, InputValidator, Hasher
 from banking_core.database import *
+from banking_core.database import setup_database as setup
 
-def main():
-    db_connection = DatabaseConnection()
-    db_manager = BaseManager(db_connection.get_connection())
-    pin_hasher = PinHasher()
-    account_locker = AccountLocker(db_manager)
-    account_authenticator = AccountAuthenticator(db_manager, pin_hasher, account_locker)
-    account_creator = AccountCreator(db_manager)
-    transaction_manager = TransactionManager(db_manager)
-    limit_manager = LimitManager(db_manager)
-
+def main_menu_logic(account_creator, account_authenticator, transaction_manager, account_locker, limit_manager):
     def main_menu():
         print("1. Create an account\n2. Log into account\n0. Exit")
 
@@ -100,6 +93,53 @@ def main():
 
         else:
             print("Invalid choice. Please select from the menu options.")
+
+def main():
+    db_connection = DatabaseConnection()
+    setup(db_connection.get_connection())
+    db_manager = BaseManager(db_connection.get_connection())
+    hasher = Hasher()
+    account_locker = AccountLocker(db_manager)
+    account_authenticator = AccountAuthenticator(db_manager, hasher, account_locker)
+    customer_number = None
+    customer_creator = CustomerCreator(db_manager, customer_number)
+    customer_number = customer_creator.generate_customer_number()
+    customer_authenticator = CustomerAuthenticator(db_manager, hasher)
+    account_creator = AccountCreator(db_manager, customer_number)
+    transaction_manager = TransactionManager(db_manager)
+    limit_manager = LimitManager(db_manager)
+
+    def logon_menu():
+        print("Do you have customer account?\n1. Log in\n2. Create a customer account\n0. Exit")
+
+    while True:
+        logon_menu()
+        option = input("Choose an option: ")
+
+        if option == '1':
+            customer_number = input("Enter your customer number: ")
+            password = input("Enter your password: ")
+            try:
+                if customer_authenticator.log_into_customer_account(customer_number, password):
+                    print("You have successfully logged in!")
+                    main_menu_logic(account_creator, account_authenticator, transaction_manager, account_locker,
+                                    limit_manager)
+            except ValueError as e:
+                print(e)
+
+        elif option == '2':
+            customer_number, password = customer_creator.create_customer_accounnt()
+            print("Client account created successfully!")
+            print(f"Your customer number:\n{customer_number}")
+            print(f"Your password:\n{password}")
+
+        elif option == '0':
+            print('Bye!')
+            break
+
+        else:
+            print("Invalid choice. Please try again.")
+
 
 if __name__ == "__main__":
     main()

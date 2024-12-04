@@ -91,11 +91,11 @@
 ## [1.3.0] - 2024-11-18
 
 ### Added
-- **PinHasher Class**: Added a new class `PinHasher` to handle PIN hashing and PIN verification. 
+- **Hasher Class**: Added a new class `Hasher` to handle PIN hashing and PIN verification. 
   - **`hash_pin`**: Hashes a given PIN using bcrypt.
   - **`check_pin`**: Verifies if an entered PIN matches the hashed PIN stored in the database.
 
-- **Tests for PinHasher**: Added unit tests for `PinHasher` to verify hashing and PIN validation functionality.
+- **Tests for Hasher**: Added unit tests for `Hasher` to verify hashing and PIN validation functionality.
 
 - **Docker Support**: 
   - Added `Dockerfile` and `docker-compose.yml` for containerized development.

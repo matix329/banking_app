@@ -1,13 +1,13 @@
 from argon2 import PasswordHasher
 
-class PinHasher:
+class Hasher:
     @staticmethod
-    def hash_pin(pin: str) -> str:
+    def hash(pin: str) -> str:
         ph = PasswordHasher()
         return ph.hash(pin)
 
     @staticmethod
-    def check_pin(stored_hash: str, entered_pin: str) -> bool:
+    def check(stored_hash: str, entered_pin: str) -> bool:
         ph = PasswordHasher()
         try:
             return ph.verify(stored_hash, entered_pin)

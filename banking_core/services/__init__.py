@@ -1,4 +1,4 @@
-from .utils.pin_hasher import PinHasher
+from .utils.hasher import Hasher
 from .accounts.account_creator import AccountCreator
 from .accounts.account_authenticator import AccountAuthenticator
 from .accounts.account_locker import AccountLocker
@@ -9,9 +9,11 @@ from .limits.limit_validator import LimitValidator
 from .utils.validator import InputValidator
 from .utils.validator import CardValidator
 from .utils.constants import CARD_PREFIX, CARD_LENGTH, PIN_LENGTH
+from .customers.customer_creator import CustomerCreator
+from .customers.customer_authenticator import CustomerAuthenticator
 
 __all__ = [
-    "PinHasher",
+    "Hasher",
     "AccountCreator",
     "AccountAuthenticator",
     "AccountLocker",
@@ -23,5 +25,7 @@ __all__ = [
     "CardValidator",
     "CARD_PREFIX",
     "CARD_LENGTH",
-    "PIN_LENGTH"
+    "PIN_LENGTH",
+    "CustomerCreator",
+    "CustomerAuthenticator",
 ]

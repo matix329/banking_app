@@ -15,11 +15,18 @@ def setup_database(connection):
         cursor.execute('''  CREATE TABLE IF NOT EXISTS account (
                             id SERIAL PRIMARY KEY, 
                             customer_id INTEGER NOT NULL,
-                            account_number VARCHAR(7) UNIQUE NOT NULL,
+                            customer_number VARCHAR(7) UNIQUE NOT NULL,
                             password TEXT NOT NULL, 
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
                             FOREIGN KEY (customer_id) REFERENCES customer(id) ON DELETE CASCADE
+                        );''')
+        cursor.execute('''  CREATE TABLE IF NOT EXISTS sub_account (
+                            id SERIAL PRIMARY KEY,
+                            account_id INTEGER NOT NULL,
+                            currency CHAR(3) NOT NULL,
+                            balance NUMERIC(15, 2) DEFAULT 0 CHECK (balance >= 0),
+                            FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE CASCADE
                         );''')
         cursor.execute('''  CREATE TABLE IF NOT EXISTS card (
                             id SERIAL PRIMARY KEY,
@@ -49,13 +56,6 @@ def setup_database(connection):
                             set_date DATE,
                             changes_today INTEGER DEFAULT 0,
                             FOREIGN KEY (sub_account_id) REFERENCES sub_account(id) ON DELETE CASCADE
-                        );''')
-        cursor.execute('''  CREATE TABLE IF NOT EXISTS sub_account (
-                            id SERIAL PRIMARY KEY,
-                            account_id INTEGER NOT NULL,
-                            currency CHAR(3) NOT NULL,
-                            balance NUMERIC(15, 2) DEFAULT 0 CHECK (balance >= 0),
-                            FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE CASCADE
                         );''')
         connection.commit()
         cursor.close()

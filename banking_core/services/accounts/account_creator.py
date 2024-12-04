@@ -1,23 +1,27 @@
 import random
+import string
 from ..utils.constants import CARD_PREFIX, CARD_LENGTH, PIN_LENGTH
-from banking_core.services import PinHasher
+from ..utils.hasher import Hasher
 
 class AccountCreator:
-    def __init__(self, db):
+    def __init__(self, db, customer_id):
         self.db = db
+        self.customer_id = customer_id
 
     def create_account(self):
         while True:
-            card_number = self.generate_card_number()
-            if not self.db.fetch_one("SELECT card_number FROM card WHERE card_number = %s", (card_number,)):
+            account_number = self.generate_account_number()
+            if not self.db.fetch_one("SELECT account_number FROM account WHERE account_number = %s", (account_number,)):
                 break
 
-        pin = self.generate_pin()
-        hashed_pin = PinHasher.hash_pin(pin)
-        cvv = self.generate_cvv()
+        password = self.generate_password()
+        hashed_password = Hasher.hash(password)
 
-        self.db.execute_query("INSERT INTO card (card_number, pin, balance, cvv) VALUES (%s, %s, 0, %s)", (card_number, hashed_pin, cvv))
-        return card_number, pin
+        self.db.execute_query(
+            "INSERT INTO account (customer_id, account_number, password) VALUES (%s, %s, %s)",
+            (self.customer_id, account_number, hashed_password)
+        )
+        return account_number, password
 
     def generate_card_number(self):
         account_number = ''.join([str(random.randint(0, 9)) for _ in range(CARD_LENGTH - len(CARD_PREFIX) - 1)])

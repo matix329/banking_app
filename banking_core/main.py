@@ -8,7 +8,8 @@ def main_menu_logic(account_creator, account_authenticator, transaction_manager,
         print("1. Create an account\n2. Log into account\n0. Exit")
 
     def account_menu():
-        print("1. Balance\n2. Add income\n3. Do transfer\n4. Transaction history\n5. Close account\n6. Set daily limit\n7. Add new exchange account\n8. Exchange currency\n9. Log out\n0. Exit")
+        print(
+            "1. Balance\n2. Add income\n3. Do transfer\n4. Transaction history\n5. Close account\n6. Set daily limit\n7. Add new exchange account\n8. Exchange currency\n9. Log out\n0. Exit")
 
     while True:
         main_menu()
@@ -128,7 +129,7 @@ def main():
                 print(e)
 
         elif option == '2':
-            customer_number, password = customer_creator.create_customer_accounnt()
+            customer_number, password = customer_creator.create_customer_account()
             print("Client account created successfully!")
             print(f"Your customer number:\n{customer_number}")
             print(f"Your password:\n{password}")

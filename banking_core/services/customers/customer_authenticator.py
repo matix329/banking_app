@@ -14,6 +14,6 @@ class CustomerAuthenticator:
             if self.password_hasher.check(stored_hash, password):
                 return True
             else:
-                return False
+                raise ValueError("Incorrect password.")
         else:
             raise ValueError("Customer account not found.")

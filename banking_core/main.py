@@ -9,7 +9,7 @@ def main_menu_logic(account_creator, account_authenticator, transaction_manager,
 
     def account_menu():
         print(
-            "1. Balance\n2. Add income\n3. Do transfer\n4. Transaction history\n5. Close account\n6. Set daily limit\n7. Add new exchange account\n8. Exchange currency\n9. Log out\n0. Exit")
+            "1. Balance\n2. Add income\n3. Do transfer\n4. Transaction history\n5. Close account\n6. Set daily limit\n7. Add new exchange account\n8. Exchange currency\n9. Change password\n10. Log out\n0. Exit")
 
     while True:
         main_menu()
@@ -72,6 +72,9 @@ def main_menu_logic(account_creator, account_authenticator, transaction_manager,
                             print("Currency exchange feature will be added soon.")
 
                         elif inner_choice == '9':
+                            print("Password change feature will be added soon.")
+
+                        elif inner_choice == '10':
                             print("You have successfully logged out!")
                             break
 

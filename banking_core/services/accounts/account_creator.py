@@ -1,7 +1,5 @@
 import random
-import string
 from ..utils.constants import CARD_PREFIX, CARD_LENGTH, PIN_LENGTH
-from ..utils.hasher import Hasher
 
 class AccountCreator:
     def __init__(self, db, customer_id):
@@ -14,14 +12,10 @@ class AccountCreator:
             if not self.db.fetch_one("SELECT account_number FROM account WHERE account_number = %s", (account_number,)):
                 break
 
-        password = self.generate_password()
-        hashed_password = Hasher.hash(password)
+        return account_number
 
-        self.db.execute_query(
-            "INSERT INTO account (customer_id, account_number, password) VALUES (%s, %s, %s)",
-            (self.customer_id, account_number, hashed_password)
-        )
-        return account_number, password
+    def generate_account_number(self):
+        return ''.join([str(random.randint(0, 9)) for _ in range(26)])
 
     def generate_card_number(self):
         account_number = ''.join([str(random.randint(0, 9)) for _ in range(CARD_LENGTH - len(CARD_PREFIX) - 1)])

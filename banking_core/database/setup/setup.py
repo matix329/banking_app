@@ -14,7 +14,7 @@ def setup_database(connection):
                         );''')
         cursor.execute('''  CREATE TABLE IF NOT EXISTS account (
                             id SERIAL PRIMARY KEY, 
-                            customer_id INTEGER NOT NULL,
+                            customer_id INTEGER NOT NULL UNIQUE,
                             customer_number VARCHAR(7) UNIQUE NOT NULL,
                             password TEXT NOT NULL, 
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -30,24 +30,22 @@ def setup_database(connection):
                         );''')
         cursor.execute('''  CREATE TABLE IF NOT EXISTS card (
                             id SERIAL PRIMARY KEY,
-                            account_id INTEGER NOT NULL,
-                            sub_account_id INTEGER,
+                            sub_account_id INTEGER NOT NULL UNIQUE,
                             card_number VARCHAR(16) UNIQUE NOT NULL,
                             expiry_date DATE NOT NULL,
                             cvv VARCHAR(3) NOT NULL,
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE CASCADE,
                             FOREIGN KEY (sub_account_id) REFERENCES sub_account(id) ON DELETE CASCADE
                         );''')
         cursor.execute('''  CREATE TABLE IF NOT EXISTS transactions (
                             id SERIAL PRIMARY KEY,
-                            account_id INTEGER NOT NULL, 
+                            sub_account_id INTEGER NOT NULL, 
                             transaction_type TEXT, 
                             amount NUMERIC(10, 2) CHECK (amount > 0),
                             description TEXT, 
                             date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
-                            FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE CASCADE
+                            FOREIGN KEY (sub_account_id) REFERENCES sub_account(id) ON DELETE CASCADE
                         );''')
         cursor.execute('''  CREATE TABLE IF NOT EXISTS daily_limits (
                             id SERIAL PRIMARY KEY, 

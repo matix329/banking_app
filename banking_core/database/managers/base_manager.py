@@ -2,28 +2,31 @@ import psycopg2
 
 class BaseManager:
     def __init__(self, connection):
-        self.conn = connection
+        self.connection = connection
 
     def execute_query(self, query, params=()):
-        if self.conn:
+        if self.connection:
             try:
-                cursor = self.conn.cursor()
+                cursor = self.connection.cursor()
                 cursor.execute(query, params)
-                self.conn.commit()
+                self.connection.commit()
                 cursor.close()
             except psycopg2.Error as e:
                 print(f"Database query error: {e}")
+                self.connection.rollback()
                 raise
 
     def fetch_one(self, query, params=()):
-        if self.conn:
-            cursor = self.conn.cursor()
+        if self.connection:
+            cursor = self.connection.cursor()
             try:
                 cursor.execute(query, params)
                 return cursor.fetchone()
             except psycopg2.Error as e:
                 print(f"Database query error: {e}")
                 raise
+            finally:
+                cursor.close()
 
     def get_daily_limit(self, sub_account_id):
         query = """

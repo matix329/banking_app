@@ -1,53 +1,61 @@
 import random
 import string
 from ..utils.hasher import Hasher
-
+import psycopg2
 
 class CustomerCreator:
     def __init__(self, db, customer_number):
         self.db = db
-        self.customer_number = customer_number
 
     def create_customer_account(self):
-        first_name = input("Enter first name: ")
-        last_name = input("Enter last name: ")
-        email = input("Enter email address: ")  # Pobieranie adresu e-mail
+        first_name = input("Enter first name: ").strip()
+        last_name = input("Enter last name: ").strip()
+        email = input("Enter email address: ").strip()
 
-        while True:
-            customer_number = self.generate_customer_number()
-            if not self.db.fetch_one("SELECT customer_number FROM account WHERE customer_number = %s",
-                                     (customer_number,)):
-                break
+        if not first_name or not last_name:
+            raise ValueError("First name and last name cannot be empty.")
 
+        customer_number =  self.generate_customer_number()
         password = self.generate_password()
         hashed_password = Hasher.hash(password)
 
-        customer_id = self.generate_customer_id()
+        try:
+            query_customer = """
+                INSERT INTO customer (first_name, last_name, email)
+                VALUES (%s, %s, %s)
+                RETURNING id;
+            """
 
-        self.db.execute_query(
-            "INSERT INTO customer (id, first_name, last_name, email) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING",
-            (customer_id, first_name, last_name, email)
-        )
-        self.db.execute_query(
-            "INSERT INTO account (customer_id, customer_number, password) VALUES (%s, %s, %s)",
-            (customer_id, customer_number, hashed_password)
-        )
-        return customer_number, password
+            customer_id = self.db.fetch_one(query_customer, (first_name, last_name, email))[0]
 
-    def get_customer_number(self):
-        customer_id = input("Enter customer number: ")
-        return customer_id
+            query_account = """
+                INSERT INTO account (customer_id, customer_number, password)
+                VALUES (%s, %s, %s);
+            """
+            self.db.execute_query(query_account, (customer_id, customer_number, hashed_password))
+
+            print("Customer account successfully created.")
+            return customer_number, password
+
+        except psycopg2.IntegrityError as e:
+            self.db.connection.rollback()
+            if "email" in str(e):
+                print("This email is already in use.")
+                raise ValueError("Email already exists.")
+            else:
+                print(f"Error creating customer account: {e}")
+                raise
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            raise
+        finally:
+            self.db.connection.commit()
 
     def generate_customer_number(self):
-        letters_part = [random.choice(string.ascii_letters) for _ in range(5)]
-        digits_part = [random.choice(string.digits) for _ in range(2)]
-        account_number = letters_part + digits_part
-        random.shuffle(account_number)
-        return ''.join(account_number)
+        letters_part = ''.join(random.choice(string.ascii_uppercase) for _ in range(5))
+        digits_part = ''.join(random.choice(string.digits) for _ in range(2))
+        return letters_part + digits_part
 
     def generate_password(self, length=8):
-        characters = string.ascii_letters + string.digits + string.punctuation
+        characters = string.ascii_letters + string.digits
         return ''.join(random.choice(characters) for _ in range(length))
-
-    def generate_customer_id(self):
-        return random.randint(1, 999999)

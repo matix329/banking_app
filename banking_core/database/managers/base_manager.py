@@ -21,10 +21,14 @@ class BaseManager:
             cursor = self.connection.cursor()
             try:
                 cursor.execute(query, params)
-                return cursor.fetchone()
+                result = cursor.fetchone()
+                if result is None:
+                    raise ValueError(f"Query returned no result: {params}")
+                return result
+            except psycopg2.IntegrityError as e:
+                raise ValueError(f"Integrity error (e.g., foreign key violation): {e}, Query: {query}, Params: {params}") from e
             except psycopg2.Error as e:
-                print(f"Database query error: {e}")
-                raise
+                raise ValueError(f"Database query error: {e}, Query: {query}, Params: {params}") from e
             finally:
                 cursor.close()
 

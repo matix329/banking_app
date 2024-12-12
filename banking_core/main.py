@@ -3,7 +3,7 @@ from banking_core.services import AccountCreator, AccountAuthenticator, AccountL
 from banking_core.database import *
 from banking_core.database import setup_database as setup
 
-def main_menu_logic(account_creator, account_authenticator, transaction_manager, account_locker, limit_manager):
+def main_menu_logic(account_authenticator, transaction_manager, account_locker, limit_manager, db_manager, customer_number):
     def main_menu():
         print("1. Create an account\n2. Log into account\n0. Exit")
 
@@ -11,15 +11,22 @@ def main_menu_logic(account_creator, account_authenticator, transaction_manager,
         print(
             "1. Balance\n2. Add income\n3. Do transfer\n4. Transaction history\n5. Close account\n6. Set daily limit\n7. Add new exchange account\n8. Exchange currency\n9. Change password\n10. Log out\n0. Exit")
 
+    account_creator = None
+
     while True:
         main_menu()
         choice = input("Choose an option: ")
 
         if choice == '1':
-            card_number, pin = account_creator.create_account()
-            print("Your card has been created")
-            print(f"Your card number:\n{card_number}")
-            print(f"Your card PIN:\n{pin}")
+            try:
+                if account_creator is None:
+                    account_creator = AccountCreator(db_manager, customer_number)
+
+                account_details = account_creator.create_account()
+                print("Your sub account has been created")
+                print(f"Your sub account number:\n{account_details['account_number']}")
+            except Exception as e:
+                print(f"Failed to create sub account: {e}")
 
         elif choice == '2':
             card_number = input("Enter your card number: ")
@@ -105,11 +112,8 @@ def main():
     hasher = Hasher()
     account_locker = AccountLocker(db_manager)
     account_authenticator = AccountAuthenticator(db_manager, hasher, account_locker)
-    customer_number = None
-    customer_creator = CustomerCreator(db_manager, customer_number)
-    customer_number = customer_creator.generate_customer_number()
+    customer_creator = CustomerCreator(db_manager, None)
     customer_authenticator = CustomerAuthenticator(db_manager, hasher)
-    account_creator = AccountCreator(db_manager, customer_number)
     transaction_manager = TransactionManager(db_manager)
     limit_manager = LimitManager(db_manager)
 
@@ -126,8 +130,9 @@ def main():
             try:
                 if customer_authenticator.log_into_customer_account(customer_number, password):
                     print("You have successfully logged in!")
-                    main_menu_logic(account_creator, account_authenticator, transaction_manager, account_locker,
-                                    limit_manager)
+                    main_menu_logic(account_authenticator, transaction_manager, account_locker, limit_manager,
+                                    db_manager,
+                                    customer_number)
             except ValueError as e:
                 print(e)
 

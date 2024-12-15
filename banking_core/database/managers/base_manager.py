@@ -9,8 +9,12 @@ class BaseManager:
             try:
                 cursor = self.connection.cursor()
                 cursor.execute(query, params)
+                result = None
+                if query.strip().upper().startswith("INSERT") and "RETURNING" in query.upper():
+                    result = cursor.fetchone()
                 self.connection.commit()
                 cursor.close()
+                return result
             except psycopg2.Error as e:
                 print(f"Database query error: {e}")
                 self.connection.rollback()
@@ -22,8 +26,6 @@ class BaseManager:
             try:
                 cursor.execute(query, params)
                 result = cursor.fetchone()
-                if result is None:
-                    raise ValueError(f"Query returned no result: {params}")
                 return result
             except psycopg2.IntegrityError as e:
                 raise ValueError(f"Integrity error (e.g., foreign key violation): {e}, Query: {query}, Params: {params}") from e

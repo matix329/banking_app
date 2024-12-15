@@ -23,10 +23,11 @@ def setup_database(connection):
                         );''')
         cursor.execute('''  CREATE TABLE IF NOT EXISTS sub_account (
                             id SERIAL PRIMARY KEY,
-                            account_id INTEGER NOT NULL,
+                            account_id VARCHAR(7) NOT NULL,
+                            account_number VARCHAR(26) UNIQUE NOT NULL,
                             currency CHAR(3) NOT NULL,
                             balance NUMERIC(15, 2) DEFAULT 0 CHECK (balance >= 0),
-                            FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE CASCADE
+                            FOREIGN KEY (account_id) REFERENCES account(customer_number) ON DELETE CASCADE
                         );''')
         cursor.execute('''  CREATE TABLE IF NOT EXISTS card (
                             id SERIAL PRIMARY KEY,

@@ -1,24 +1,34 @@
 class AccountAuthenticator:
-    def __init__(self, db, pin_hasher, account_locker):
+    def __init__(self, db, customer_number):
         self.db = db
-        self.pin_hasher = pin_hasher
-        self.account_locker = account_locker
+        self.customer_number = customer_number
 
-    def log_into_account(self, account_number, pin):
-        result = self.db.fetch_one("SELECT id, pin, failed_attempts, locked FROM account WHERE account_number = %s",
-                                   (account_number,))
-
-        if result:
-            stored_account_id, stored_hash, failed_attempts, locked = result
-
-            if locked:
-                raise ValueError("Your account is already locked.")
-
-            if self.pin_hasher.check(stored_hash, pin):
-                self.db.execute_query("UPDATE account SET failed_attempts = 0 WHERE account_number = %s", (account_number,))
-                return True
-            else:
-                self.account_locker.lock_account_after_failed_attempt(account_number)
-                return False
+    def log_into_account(self, account_id):
+        accounts = self.db.fetch_all(
+            "SELECT account_number, currency FROM sub_account WHERE account_id = %s LIMIT 3",
+            (account_id,)
+        )
+        selected_account = self.display_accounts(accounts)
+        if selected_account:
+            print(f"You have selected account {selected_account[0]} with currency {selected_account[1]}")
         else:
-            raise ValueError("Account not found.")
+            print("No account selected.")
+
+    def display_accounts(self, accounts):
+        if not accounts:
+            print("No accounts available.")
+            return None
+
+        print("\nAvailable accounts:")
+        for idx, (account_number, currency) in enumerate(accounts, start=1):
+            print(f"{idx}. Account Number: {account_number} | Currency: {currency}")
+
+        while True:
+            try:
+                choice = int(input("\nSelect an account by number (1-3): "))
+                if 1 <= choice <= len(accounts):
+                    return accounts[choice - 1]
+                else:
+                    print("Invalid choice. Please select a valid number.")
+            except ValueError:
+                print("Invalid input. Please enter a number.")

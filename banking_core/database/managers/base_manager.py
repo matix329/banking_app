@@ -16,7 +16,7 @@ class BaseManager:
                 cursor.close()
                 return result
             except psycopg2.Error as e:
-                print(f"Database query error: {e}")
+                print(f"Database query error: {e.pgcode} - {e.pgerror}")
                 self.connection.rollback()
                 raise
 

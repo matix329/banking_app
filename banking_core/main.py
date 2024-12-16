@@ -1,5 +1,5 @@
 from banking_core.services import AccountCreator, AccountAuthenticator, AccountLocker, TransactionManager, \
-    CustomerCreator, CustomerAuthenticator, LimitManager, InputValidator, Hasher
+    CustomerCreator, CustomerAuthenticator, LimitManager, Hasher
 from banking_core.database import *
 from banking_core.database import setup_database as setup
 
@@ -29,48 +29,39 @@ def main_menu_logic(account_authenticator, transaction_manager, account_locker, 
                 print(f"Failed to create sub account: {e}")
 
         elif choice == '2':
-            card_number = input("Enter your card number: ")
-            pin = input("Enter your PIN: ")
             try:
-                if account_authenticator.log_into_account(card_number, pin):
+                selected_account =  account_authenticator.log_into_account(customer_number)
+                if selected_account is not None:
                     print("You have successfully logged in!")
+                    account_number =  selected_account[0]
+                    currency  = selected_account[1]
+
                     while True:
                         account_menu()
                         inner_choice = input("Choose an option: ")
 
                         if inner_choice == '1':
-                            print(f"Balance: {transaction_manager.get_balance(card_number)}")
+                            balance = transaction_manager.get_balance(account_number)
+                            print(f"Your balance is: {balance:.2f} {currency}")
 
                         elif inner_choice == '2':
-                            income = InputValidator.get_positive_integer("Enter income: ")
-                            transaction_manager.add_income(card_number, income)
+                            try:
+                                income  = float(input("Enter income: "))
+                                transaction_manager.add_income(account_number, income)
+                            except ValueError as e:
+                                print(f"Error: {e} Please enter a valid positive number")
 
                         elif inner_choice == '3':
-                            target_card = input("Enter card number: ")
-                            amount = InputValidator.get_positive_integer("Enter amount: ")
-                            try:
-                                transaction_manager.transfer(card_number, target_card, amount)
-                            except ValueError as e:
-                                print(e)
+                            print("The feature will be added soon.")
 
                         elif inner_choice == '4':
-                            print("Transaction history:")
-                            transaction_manager.get_transaction_history(card_number)
+                            print("The feature will be added soon.")
 
                         elif inner_choice == '5':
-                            while True:
-                                pin = input("Enter your PIN: ")
-                                try:
-                                    if account_locker.lock_account(card_number, pin):
-                                        print("Account has been closed.")
-                                        break
-                                except ValueError as e:
-                                    print(e)
-                                    continue
-                            break
+                            print("The feature will be added soon.")
 
                         elif inner_choice == '6':
-                            limit_manager.set_daily_limit(card_number)
+                            print("The feature will be added soon.")
 
                         elif inner_choice == '7':
                             print("The feature of adding new accounts will be added soon.")
@@ -93,7 +84,7 @@ def main_menu_logic(account_authenticator, transaction_manager, account_locker, 
                             print("Invalid option. Please try again.")
 
                 else:
-                    print("Wrong card number or PIN!")
+                    print("Failed to log into any account.")
 
             except ValueError as e:
                 print(e)
@@ -111,7 +102,7 @@ def main():
     db_manager = BaseManager(db_connection.get_connection())
     hasher = Hasher()
     account_locker = AccountLocker(db_manager)
-    account_authenticator = AccountAuthenticator(db_manager, hasher, account_locker)
+    account_authenticator = AccountAuthenticator(db_manager, None)
     customer_creator = CustomerCreator(db_manager, None)
     customer_authenticator = CustomerAuthenticator(db_manager, hasher)
     transaction_manager = TransactionManager(db_manager)

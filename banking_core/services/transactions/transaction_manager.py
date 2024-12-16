@@ -27,8 +27,19 @@ class TransactionManager:
     def add_income(self, sub_account_id, income):
         if not isinstance(income, (int, float)) or income <= 0:
             raise ValueError("Income must be a positive number.")
-        self.db.execute_query("UPDATE sub_account SET balance = balance + %s WHERE id = %s", (income, sub_account_id))
-        print(f"Income of {income} has been added to your account.")
+
+        result = self.db.fetch_one(
+            "UPDATE sub_account SET balance = balance + %s WHERE account_number = %s RETURNING balance;",
+            (income, sub_account_id)
+        )
+
+        if not result:
+            raise ValueError("Failed to add income. Account not found or invalid account number.")
+
+        new_balance = result[0]
+        print(f"Income of {income:.2f} has been added to your account.")
+        print(f"Your new balance is: {new_balance:.2f}")
+        return new_balance
 
     def get_transaction_history(self, sub_account_id):
         cursor = self.db.conn.cursor()

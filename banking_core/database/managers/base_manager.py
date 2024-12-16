@@ -26,9 +26,23 @@ class BaseManager:
             try:
                 cursor.execute(query, params)
                 result = cursor.fetchone()
+                self.connection.commit()
                 return result
             except psycopg2.IntegrityError as e:
                 raise ValueError(f"Integrity error (e.g., foreign key violation): {e}, Query: {query}, Params: {params}") from e
+            except psycopg2.Error as e:
+                raise ValueError(f"Database query error: {e}, Query: {query}, Params: {params}") from e
+            finally:
+                cursor.close()
+
+    def fetch_all(self, query, params=()):
+        if self.connection:
+            cursor = self.connection.cursor()
+            try:
+                cursor.execute(query, params)
+                results = cursor.fetchall()
+                self.connection.commit()
+                return results
             except psycopg2.Error as e:
                 raise ValueError(f"Database query error: {e}, Query: {query}, Params: {params}") from e
             finally:

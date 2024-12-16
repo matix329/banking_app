@@ -51,5 +51,5 @@ class TransactionManager:
         self.db.execute_query(query, (sub_account_id, transaction_type, amount))
 
     def get_balance(self, sub_account_id):
-        result = self.db.fetch_one("SELECT balance FROM sub_account WHERE number = %s", (sub_account_id,))
-        return result[0] if result else 0
+        result = self.db.fetch_one("SELECT balance FROM sub_account WHERE account_number = %s", (sub_account_id,))
+        return result[0] if result else 0.0

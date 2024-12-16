@@ -11,8 +11,10 @@ class AccountAuthenticator:
         selected_account = self.display_accounts(accounts)
         if selected_account:
             print(f"You have selected account {selected_account[0]} with currency {selected_account[1]}")
+            return selected_account
         else:
             print("No account selected.")
+            return None
 
     def display_accounts(self, accounts):
         if not accounts:
